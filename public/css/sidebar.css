@@ -1,0 +1,115 @@
+/* Copiar este archivo a: public/css/sidebar.css */
+/* (o a resources/css/sidebar.css e importarlo en app.css si usas Vite para compilarlo) */
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #08024a;
+    padding-top: 10px;
+    overflow-y: auto;
+}
+
+.menu-header {
+    text-align: center;
+    padding: 15px 10px;
+    color: #ffffff;
+}
+
+.menu-header i {
+    font-size: 2rem;
+    color: #4fa1ed;
+}
+
+.menu-header span {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+.sidebar a {
+    color: #cbd5e1;
+    padding: 12px 20px;
+    display: block;
+    text-decoration: none;
+    font-size: 15px;
+    transition: all .2s;
+}
+
+.sidebar a i {
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background-color: #0715ad;
+    color: #fff;
+}
+
+.sidebar .collapse a {
+    font-size: 14px;
+    padding: 8px 35px;
+    color: #6481a8;
+}
+
+.sidebar .collapse a:hover {
+    color: #fff;
+    background-color: #272efc;
+}
+
+/* ===== CONTENIDO ===== */
+.content {
+    margin-left: 240px;
+    padding: 30px;
+    min-height: 100vh;
+}
+
+/* ===== ICONOS ===== */
+.icon-dashboard { color:#0dcaf0; }
+.icon-paciente  { color:#0d6efd; }
+.icon-cita      { color:#20c997; }
+.icon-historia  { color:#6f42c1; }
+.icon-atencion  { color:#dc3545; }
+.icon-reporte   { color:#fd7e14; }
+
+/* ===== CERRAR SESIÓN ===== */
+.logout-container {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 240px;
+    padding: 0 15px;
+}
+
+.logout-link {
+    display: block;
+    background-color: rgb(21, 5, 99);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 15px;
+    transition: background .2s;
+}
+
+.logout-link i {
+    margin-right: 10px;
+}
+
+.logout-link:hover {
+    background-color: rgb(43, 7, 187);
+    color: #fff;
+}

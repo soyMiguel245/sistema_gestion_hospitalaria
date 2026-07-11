@@ -1,109 +1,62 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Hospitalaria - @yield('title', 'Acceso')</title>
 
-    <title>Sistema de Gestión Hospitalaria</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
         body {
             min-height: 100vh;
-            margin: 0;
-            font-family: 'Figtree', sans-serif;
-
-            /* IMAGEN DE FONDO HOSPITAL */
-            background-image: url('https://images.unsplash.com/photo-1586773860418-d37222d8fce3');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: #08024a;
+            font-family: Arial, sans-serif;
         }
-
-        /* CAPA OSCURA PARA MEJOR LECTURA */
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            z-index: 0;
-        }
-
-        .auth-card {
-            position: relative;
-            z-index: 1;
-            background: #ffffff;
+        .guest-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 40px;
             width: 100%;
             max-width: 420px;
-            border-radius: 14px;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,.35);
+            box-shadow: 0 10px 30px rgba(0,0,0,.2);
         }
-
-        .auth-header {
+        .guest-header {
             text-align: center;
             margin-bottom: 25px;
         }
-
-        .auth-header i {
-            font-size: 3rem;
-            color: #0d6efd;
+        .guest-header i {
+            font-size: 2.5rem;
+            color: #4fa1ed;
         }
-
-        .auth-header h4 {
-            margin-top: 10px;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        .auth-header span {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        .btn-primary {
-            background-color: #0d6efd !important;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0b5ed7 !important;
+        .guest-header span {
+            display: block;
+            margin-top: 6px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #08024a;
         }
     </style>
 </head>
-
 <body>
 
-    <div class="auth-card">
-
-        <!-- CABECERA -->
-        <div class="auth-header">
+    <div class="guest-card">
+        <div class="guest-header">
             <i class="bi bi-hospital"></i>
-            <h4>Sistema Hospitalario</h4>
-            <span>Acceso seguro al sistema</span>
+            <span>SISTEMA DE GESTIÓN<br>HOSPITALARIA</span>
         </div>
 
-        <!-- LOGIN / REGISTRO -->
-        {{ $slot }}
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
+        @yield('content')
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
