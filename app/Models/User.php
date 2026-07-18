@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // <-- FIX: faltaba, por eso el rol no se guardaba al crear/editar usuarios
     ];
 
     /**
@@ -44,5 +45,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Helper para verificar el rol del usuario. Lo usaremos en las Policies
+     * en vez de comparar $user->role === 'algo' repetido en cada una.
+     *
+     * Uso: $user->hasRole('administrador')
+     *      $user->hasRole(['medico', 'administrador'])
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        return in_array($this->role, (array) $roles);
     }
 }

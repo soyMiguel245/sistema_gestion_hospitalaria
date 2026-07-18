@@ -8,6 +8,15 @@ use Illuminate\Validation\Rule;
 
 class PacienteController extends Controller
 {
+    /**
+     * Conecta cada acción con PacientePolicy: index->viewAny, create/store->create,
+     * show->view, edit/update->update, destroy->delete.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Paciente::class, 'paciente');
+    }
+
     public function index()
     {
         $pacientes = Paciente::orderBy('id', 'desc')->get();

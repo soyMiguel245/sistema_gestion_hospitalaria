@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Auth;
 
 class HistoriaClinicaController extends Controller
 {
+    /**
+     * Conecta automáticamente cada acción de este controlador con
+     * HistoriaClinicaPolicy: index->viewAny, create/store->create,
+     * show->view, edit/update->update, destroy->delete.
+     * Esto es lo que faltaba: antes el sidebar ocultaba el link, pero
+     * la URL /historias seguía siendo accesible para cualquiera.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(HistoriaClinica::class, 'historia');
+    }
+
     public function index()
     {
         $historias = HistoriaClinica::with(['paciente', 'medico'])
@@ -53,8 +65,15 @@ class HistoriaClinicaController extends Controller
             ->with('success', 'Historia clínica registrada correctamente');
     }
 
+    /**
+     * "cerrar" es una acción personalizada (no es parte del resource
+     * estándar), así que authorizeResource() no la cubre automáticamente.
+     * La protegemos a mano con la misma regla que "update".
+     */
     public function cerrar(HistoriaClinica $historia)
     {
+        $this->authorize('update', $historia);
+
         $historia->update([
             'estado' => 'cerrada',
             'alta_medica' => true
@@ -62,13 +81,10 @@ class HistoriaClinicaController extends Controller
 
         return back()->with('success', 'Historia clínica cerrada');
     }
+
     public function show(HistoriaClinica $historia)
     {
         $historia->load(['paciente', 'medico', 'cita']);
         return view('historias.show', compact('historia'));
     }
-    
-
-
 }
-

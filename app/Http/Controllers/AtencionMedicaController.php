@@ -12,6 +12,17 @@ use Illuminate\Support\Facades\Storage;
 
 class AtencionMedicaController extends Controller
 {
+    /**
+     * Conecta cada acción con AtencionMedicaPolicy.
+     * Ojo: el segundo parámetro es 'atencion' (no 'atencionMedica'), porque
+     * así está mapeado el parámetro de ruta en web.php:
+     * Route::resource('atenciones', ...)->parameters(['atenciones' => 'atencion'])
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(AtencionMedica::class, 'atencion');
+    }
+
     // Listar atenciones médicas
     public function index()
     {

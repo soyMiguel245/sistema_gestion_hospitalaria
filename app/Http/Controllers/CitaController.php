@@ -11,6 +11,15 @@ use Carbon\Carbon;
 
 class CitaController extends Controller
 {
+    /**
+     * Conecta cada acción con CitaPolicy: index->viewAny, create/store->create,
+     * show->view, edit/update->update, destroy->delete.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Cita::class, 'cita');
+    }
+
     // Mostrar listado de citas
     public function index(Request $request)
     {
