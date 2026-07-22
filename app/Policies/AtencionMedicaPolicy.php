@@ -7,14 +7,20 @@ use App\Models\AtencionMedica;
 
 class AtencionMedicaPolicy
 {
+    /**
+     * 👇 CORREGIDO: se agrega 'enfermera' — necesita ver el registro
+     * clínico para tener contexto, pero no puede crear/editar/eliminar
+     * (ver nota más abajo: eso requeriría un endpoint dedicado de
+     * signos vitales para separar sus permisos de los del médico).
+     */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['administrador', 'medico']);
+        return $user->hasRole(['administrador', 'medico', 'enfermera']);
     }
 
     public function view(User $user, AtencionMedica $atencion): bool
     {
-        return $user->hasRole(['administrador', 'medico']);
+        return $user->hasRole(['administrador', 'medico', 'enfermera']);
     }
 
     /**

@@ -34,8 +34,8 @@ class AtencionMedica extends Model
         'peso',
         'talla',
         'imc',
-        'examenes_adjuntos',
-        'imagenes_medicas',
+        // 👇 examenes_adjuntos e imagenes_medicas se quitaron de aquí:
+        // ahora viven en la tabla archivos_medicos, no en columnas JSON.
         'tipo_paciente',
         'costo',
         'descuento',
@@ -46,27 +46,20 @@ class AtencionMedica extends Model
         'alta_medica'
     ];
 
-    // 🔴 Para SQL Server y arrays de archivos
     protected $casts = [
-        'examenes_adjuntos' => 'array',
-        'imagenes_medicas' => 'array',
         'alta_medica' => 'boolean',
+        'proxima_cita' => 'datetime',
+        'costo' => 'decimal:2',
+        'descuento' => 'decimal:2',
+        'temperatura' => 'decimal:1',
+        'peso' => 'decimal:2',
+        'talla' => 'decimal:2',
+        'imc' => 'decimal:2',
     ];
 
-    // Fechas
-    protected $dates = [
-        'proxima_cita',
-        'created_at',
-        'updated_at'
-    ];
-
-    // Relaciones
     public function paciente()
     {
-        return $this->belongsTo(Paciente::class)->withDefault([
-            'nombres' => '-',
-            'apellidos' => ''
-        ]);
+        return $this->belongsTo(Paciente::class);
     }
 
     public function cita()
@@ -78,16 +71,34 @@ class AtencionMedica extends Model
 
     public function medico()
     {
-        return $this->belongsTo(Medico::class, 'medico_id')->withDefault([
-            'nombres' => '-',
-            'apellidos' => ''
-        ]);
+        return $this->belongsTo(Medico::class, 'medico_id');
     }
 
     public function registradoPor()
     {
-        return $this->belongsTo(User::class, 'registrado_por')->withDefault([
-            'name' => '-'
-        ]);
+        return $this->belongsTo(User::class, 'registrado_por');
+    }
+
+    public function diagnosticos()
+    {
+        return $this->hasMany(Diagnostico::class, 'atencion_medica_id');
+    }
+
+    /**
+     * 👇 NUEVO: reemplaza a los campos JSON examenes_adjuntos/imagenes_medicas.
+     */
+    public function archivos()
+    {
+        return $this->hasMany(ArchivoMedico::class, 'atencion_medica_id');
+    }
+
+    public function examenes()
+    {
+        return $this->archivos()->where('tipo', 'examen');
+    }
+
+    public function imagenesMedicas()
+    {
+        return $this->archivos()->where('tipo', 'imagen');
     }
 }

@@ -25,6 +25,60 @@
                 {{ $atencion->estado }}
             </span>
 
+            {{-- ================= ARCHIVOS ADJUNTOS ================= --}}
+            <h5 class="text-secondary mt-4">📎 Archivos Adjuntos</h5>
+
+            @php
+                $examenes = $atencion->archivos->where('tipo', 'examen');
+                $imagenes = $atencion->archivos->where('tipo', 'imagen');
+            @endphp
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-semibold">🧾 Exámenes</h6>
+                    @forelse($examenes as $archivo)
+                        <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                            <a href="{{ $archivo->url }}" target="_blank" class="text-decoration-none">
+                                📄 {{ $archivo->nombre_original }}
+                            </a>
+                            <form action="{{ route('archivos.destroy', $archivo) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('¿Eliminar este archivo?')"
+                                        title="Eliminar archivo">
+                                    🗑
+                                </button>
+                            </form>
+                        </div>
+                    @empty
+                        <p class="text-muted small">No hay exámenes adjuntos.</p>
+                    @endforelse
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="fw-semibold">🖼 Imágenes Médicas</h6>
+                    @forelse($imagenes as $archivo)
+                        <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                            <a href="{{ $archivo->url }}" target="_blank" class="text-decoration-none">
+                                🖼 {{ $archivo->nombre_original }}
+                            </a>
+                            <form action="{{ route('archivos.destroy', $archivo) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('¿Eliminar este archivo?')"
+                                        title="Eliminar archivo">
+                                    🗑
+                                </button>
+                            </form>
+                        </div>
+                    @empty
+                        <p class="text-muted small">No hay imágenes médicas adjuntas.</p>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="mt-4">
                 <a href="{{ route('atenciones.index') }}" class="btn btn-secondary">⬅ Volver</a>
             </div>

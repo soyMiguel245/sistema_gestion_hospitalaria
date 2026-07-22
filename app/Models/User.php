@@ -13,32 +13,25 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * 👇 CORREGIDO: 'role' ya no es una columna real (se eliminó de la BD),
+     * ahora es 'role_id' respaldado por una FK a la tabla `roles`. Se deja
+     * 'role' en fillable porque el mutator de abajo (setRoleAttribute)
+     * intercepta las asignaciones a 'role' y las convierte en role_id.
+     * Esto evita tener que tocar controladores/formularios existentes
+     * que ya usan 'role' => 'medico', etc.
      */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role', // <-- FIX: faltaba, por eso el rol no se guardaba al crear/editar usuarios
+        'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -48,11 +41,53 @@ class User extends Authenticatable
     }
 
     /**
-     * Helper para verificar el rol del usuario. Lo usaremos en las Policies
-     * en vez de comparar $user->role === 'algo' repetido en cada una.
-     *
-     * Uso: $user->hasRole('administrador')
-     *      $user->hasRole(['medico', 'administrador'])
+     * Relación real con la tabla roles.
+     */
+    public function rol()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function medico()
+    {
+        return $this->hasOne(Medico::class);
+    }
+
+    /**
+     * 👇 NUEVO: accessor que hace que $user->role siga devolviendo el
+     * string del rol (ej. "medico"), como antes, aunque ahora la columna
+     * real es role_id. Así todo tu código existente (Blade, controladores,
+     * hasRole()) sigue funcionando sin cambios.
+     */
+    public function getRoleAttribute(): ?string
+    {
+        return $this->rol?->nombre;
+    }
+
+    /**
+     * 👇 NUEVO: mutator que intercepta 'role' => 'medico' al crear/editar
+     * un usuario, y lo traduce a role_id buscando el rol correspondiente
+     * en la tabla `roles`. Si el rol no existe, lanza un error claro en
+     * vez de guardar un dato inválido silenciosamente (el problema
+     * original que teníamos con el string libre).
+     */
+    public function setRoleAttribute(string $value): void
+    {
+        $role = Role::where('nombre', $value)->first();
+
+        if (! $role) {
+            throw new \InvalidArgumentException(
+                "El rol '{$value}' no existe. Roles válidos: " .
+                Role::pluck('nombre')->implode(', ')
+            );
+        }
+
+        $this->attributes['role_id'] = $role->id;
+    }
+
+    /**
+     * Sin cambios: sigue funcionando igual, porque sigue leyendo
+     * $this->role, que ahora viene del accessor de arriba.
      */
     public function hasRole(string|array $roles): bool
     {

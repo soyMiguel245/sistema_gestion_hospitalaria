@@ -7,14 +7,18 @@ use App\Models\Cita;
 
 class CitaPolicy
 {
+    /**
+     * 👇 CORREGIDO: se agrega 'enfermera' — necesita ver la agenda
+     * para saber a quién va a atender.
+     */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['administrador', 'medico', 'recepcion']);
+        return $user->hasRole(['administrador', 'medico', 'recepcion', 'enfermera']);
     }
 
     public function view(User $user, Cita $cita): bool
     {
-        return $user->hasRole(['administrador', 'medico', 'recepcion']);
+        return $user->hasRole(['administrador', 'medico', 'recepcion', 'enfermera']);
     }
 
     /**

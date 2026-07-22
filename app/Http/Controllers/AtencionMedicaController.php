@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\AtencionMedica;
+use App\Models\ArchivoMedico;
 use App\Models\Paciente;
 use App\Models\Cita;
-use App\Models\Medico; // ✅ Usamos la tabla medicos
+use App\Models\Medico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class AtencionMedicaController extends Controller
 {
-    /**
-     * Conecta cada acción con AtencionMedicaPolicy.
-     * Ojo: el segundo parámetro es 'atencion' (no 'atencionMedica'), porque
-     * así está mapeado el parámetro de ruta en web.php:
-     * Route::resource('atenciones', ...)->parameters(['atenciones' => 'atencion'])
-     */
     public function __construct()
     {
         $this->authorizeResource(AtencionMedica::class, 'atencion');
@@ -49,7 +44,7 @@ class AtencionMedicaController extends Controller
         $data = $request->validate([
             'paciente_id' => 'nullable|exists:pacientes,id',
             'cita_id' => 'nullable|exists:citas,id',
-            'medico_id' => 'required|exists:medicos,id', // ✅ Validación corregida
+            'medico_id' => 'required|exists:medicos,id',
             'motivo_consulta' => 'required|string',
             'diagnostico' => 'nullable|string',
             'tratamiento' => 'nullable|string',
@@ -78,22 +73,14 @@ class AtencionMedicaController extends Controller
 
         $data['registrado_por'] = Auth::id();
 
-        // Guardar archivos adjuntos
-        if ($request->hasFile('examenes_adjuntos')) {
-            $data['examenes_adjuntos'] = [];
-            foreach ($request->file('examenes_adjuntos') as $file) {
-                $data['examenes_adjuntos'][] = $file->store('examenes', 'public');
-            }
-        }
+        // Los archivos no van en $data (ya no son columnas de atenciones_medicas)
+        $examenes = $request->file('examenes_adjuntos', []);
+        $imagenes = $request->file('imagenes_medicas', []);
 
-        if ($request->hasFile('imagenes_medicas')) {
-            $data['imagenes_medicas'] = [];
-            foreach ($request->file('imagenes_medicas') as $file) {
-                $data['imagenes_medicas'][] = $file->store('imagenes_medicas', 'public');
-            }
-        }
+        $atencion = AtencionMedica::create($data);
 
-        AtencionMedica::create($data);
+        $this->guardarArchivos($atencion, $examenes, 'examen');
+        $this->guardarArchivos($atencion, $imagenes, 'imagen');
 
         return redirect()->route('atenciones.index')->with('success', 'Atención Médica registrada correctamente.');
     }
@@ -101,7 +88,7 @@ class AtencionMedicaController extends Controller
     // Mostrar una atención médica
     public function show(AtencionMedica $atencion)
     {
-        $atencion->load(['paciente', 'medico', 'cita']);
+        $atencion->load(['paciente', 'medico', 'cita', 'archivos']);
         return view('atenciones.show', compact('atencion'));
     }
 
@@ -111,6 +98,7 @@ class AtencionMedicaController extends Controller
         $pacientes = Paciente::where('estado', 'Activo')->get();
         $citas = Cita::where('estado', 'Programada')->get();
         $medicos = Medico::where('estado', 1)->orderBy('apellidos')->orderBy('nombres')->get();
+        $atencion->load('archivos');
 
         return view('atenciones.edit', compact('atencion', 'pacientes', 'citas', 'medicos'));
     }
@@ -121,7 +109,7 @@ class AtencionMedicaController extends Controller
         $data = $request->validate([
             'paciente_id' => 'required|exists:pacientes,id',
             'cita_id' => 'nullable|exists:citas,id',
-            'medico_id' => 'required|exists:medicos,id', // ✅ Validación corregida
+            'medico_id' => 'required|exists:medicos,id',
             'motivo_consulta' => 'required|string',
             'diagnostico' => 'nullable|string',
             'tratamiento' => 'nullable|string',
@@ -136,6 +124,10 @@ class AtencionMedicaController extends Controller
             'peso' => 'nullable|numeric',
             'talla' => 'nullable|numeric',
             'imc' => 'nullable|numeric',
+            // 👇 NUEVO respecto al original: ahora sí se pueden agregar más
+            // archivos al editar (antes update() no tenía esta opción).
+            'examenes_adjuntos.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
+            'imagenes_medicas.*' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'tipo_paciente' => 'required|in:Particular,Seguro,Convenio',
             'costo' => 'nullable|numeric',
             'descuento' => 'nullable|numeric',
@@ -146,28 +138,73 @@ class AtencionMedicaController extends Controller
             'alta_medica' => 'nullable|boolean',
         ]);
 
+        $examenes = $request->file('examenes_adjuntos', []);
+        $imagenes = $request->file('imagenes_medicas', []);
+        unset($data['examenes_adjuntos'], $data['imagenes_medicas']);
+
         $atencion->update($data);
 
+        $this->guardarArchivos($atencion, $examenes, 'examen');
+        $this->guardarArchivos($atencion, $imagenes, 'imagen');
+
         return redirect()->route('atenciones.index')->with('success', 'Atención Médica actualizada correctamente.');
+    }
+
+    /**
+     * 👇 NUEVO: elimina un archivo puntual (no toda la atención).
+     * Antes no existía forma de borrar un solo archivo sin reescribir
+     * el array JSON completo a mano.
+     */
+    public function destroyArchivo(ArchivoMedico $archivo)
+    {
+        $this->authorize('update', $archivo->atencionMedica);
+
+        Storage::disk('public')->delete($archivo->ruta);
+        $archivo->delete();
+
+        return back()->with('success', 'Archivo eliminado correctamente.');
     }
 
     // Eliminar atención médica
     public function destroy(AtencionMedica $atencion)
     {
-        if ($atencion->examenes_adjuntos) {
-            foreach ($atencion->examenes_adjuntos as $file) {
-                Storage::disk('public')->delete($file);
-            }
-        }
-
-        if ($atencion->imagenes_medicas) {
-            foreach ($atencion->imagenes_medicas as $file) {
-                Storage::disk('public')->delete($file);
-            }
+        // Los archivos físicos se borran uno por uno; las filas de
+        // archivos_medicos se borran solas por el cascadeOnDelete() de la FK.
+        foreach ($atencion->archivos as $archivo) {
+            Storage::disk('public')->delete($archivo->ruta);
         }
 
         $atencion->delete();
 
         return redirect()->route('atenciones.index')->with('success', 'Atención Médica eliminada correctamente.');
+    }
+
+    /**
+     * Guarda un conjunto de archivos subidos (de un tipo dado) como filas
+     * en archivos_medicos, con su metadata completa.
+     *
+     * @param  \Illuminate\Http\UploadedFile[]  $archivos
+     */
+    private function guardarArchivos(AtencionMedica $atencion, array $archivos, string $tipo): void
+    {
+        $carpeta = $tipo === 'examen' ? 'examenes' : 'imagenes_medicas';
+
+        foreach ($archivos as $file) {
+            if (! $file) {
+                continue;
+            }
+
+            $ruta = $file->store($carpeta, 'public');
+
+            ArchivoMedico::create([
+                'atencion_medica_id' => $atencion->id,
+                'tipo' => $tipo,
+                'ruta' => $ruta,
+                'nombre_original' => $file->getClientOriginalName(),
+                'mime_type' => $file->getClientMimeType(),
+                'tamano_bytes' => $file->getSize(),
+                'subido_por' => Auth::id(),
+            ]);
+        }
     }
 }

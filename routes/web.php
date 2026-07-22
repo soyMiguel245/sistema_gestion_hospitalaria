@@ -6,11 +6,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\CitaController;
-use App\Http\Controllers\HistoriaClinicaController;
+use App\Http\Controllers\HistorialClinicoController;
 use App\Http\Controllers\AtencionMedicaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\EspecialidadController;
-
+use App\Models\ArchivoMedico;
 // Página de bienvenida
 Route::get('/', function () {
     return view('welcome');
@@ -42,17 +42,20 @@ Route::middleware('auth')->group(function () {
     Route::resource('citas', CitaController::class);
     Route::get('/medicos/{especialidad}', [CitaController::class, 'getMedicos']);
 
-    // Historias Clínicas
-    Route::resource('historias', HistoriaClinicaController::class);
+     // Historias Clínicas (solo lectura: se arman desde AtencionMedica)
+    Route::get('historias', [HistorialClinicoController::class, 'index'])
+    ->name('historias.index');
+    Route::get('historias/{paciente}', [HistorialClinicoController::class, 'show'])
+    ->name('historias.show');
 
-    // 🔒 Cerrar Historia Clínica
-    Route::put('historias/{historia}/cerrar', [HistoriaClinicaController::class, 'cerrar'])
-        ->name('historias.cerrar');
 
     // Atenciones Médicas
     Route::resource('atenciones', AtencionMedicaController::class)->parameters([
         'atenciones' => 'atencion' // ✅ Aquí arreglamos la pluralización
     ]);
+
+    Route::delete('archivos-medicos/{archivo}', [AtencionMedicaController::class, 'destroyArchivo'])
+        ->name('archivos.destroy');
 
     // Especialidades
     Route::resource('especialidades', EspecialidadController::class);

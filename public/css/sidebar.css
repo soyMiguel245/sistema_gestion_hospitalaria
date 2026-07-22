@@ -14,7 +14,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #08024a;
+    background-color: #280345f7;
     padding-top: 10px;
     overflow-y: auto;
 }
@@ -55,7 +55,7 @@ body {
 
 .sidebar a:hover,
 .sidebar a.active {
-    background-color: #0715ad;
+    background-color: #290ec7;
     color: #fff;
 }
 

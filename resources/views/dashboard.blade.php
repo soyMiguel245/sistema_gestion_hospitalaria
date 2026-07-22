@@ -5,7 +5,7 @@
 <style>
 /* ===== HEADER HOSPITALARIO PROFESIONAL ===== */
 .dashboard-header {
-    background-color: rgb(8, 2, 70);
+    background-color: rgb(50, 16, 80);
     color: #ffffff;
     border-radius: 5px;
     padding: 10px 10px;

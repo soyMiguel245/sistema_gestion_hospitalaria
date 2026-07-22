@@ -82,10 +82,10 @@
 
                             <td class="text-center">
                                 <i class="fa-solid fa-calendar-days me-1 text-secondary"></i>
-                                @if($atencion->cita)
-                                    {{ \Carbon\Carbon::parse($atencion->cita->fecha_hora)->format('d/m/Y H:i') }}
+                                @if($atencion->cita->exists)
+                                   {{ \Carbon\Carbon::parse($atencion->cita->fecha_hora)->format('d/m/Y H:i') }}
                                 @else
-                                    {{ \Carbon\Carbon::parse($atencion->created_at)->format('d/m/Y H:i') }}
+                                  <span class="text-muted">Sin cita</span>
                                 @endif
                             </td>
 
