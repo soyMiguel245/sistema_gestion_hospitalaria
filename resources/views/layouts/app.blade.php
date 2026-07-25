@@ -20,7 +20,7 @@
 <body>
 
     {{-- Sidebar único: antes estaba pegado completo en 3 archivos distintos --}}
-    @include('layouts.partials.Sidebar')
+    @include('layouts.partials.sidebar')
 
     <div class="content">
         @if(session('success'))
