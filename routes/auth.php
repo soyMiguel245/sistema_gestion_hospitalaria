@@ -10,7 +10,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
+use App\Http\Controllers\Auth\TwoFactorController;
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
@@ -33,6 +34,13 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+        Route::get('two-factor-challenge', [TwoFactorChallengeController::class, 'create'])
+        ->name('two-factor.challenge');
+ 
+    Route::post('two-factor-challenge', [TwoFactorChallengeController::class, 'store'])
+        ->middleware('throttle:5,1') // mismo rate limiting que el login normal
+        ->name('two-factor.challenge.store');    
 });
 
 Route::middleware('auth')->group(function () {
@@ -56,4 +64,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+        Route::post('user/two-factor-authentication', [TwoFactorController::class, 'activar'])
+        ->name('two-factor.enable');
+ 
+    Route::post('user/confirmed-two-factor-authentication', [TwoFactorController::class, 'confirmar'])
+        ->name('two-factor.confirm');
+ 
+    Route::delete('user/two-factor-authentication', [TwoFactorController::class, 'desactivar'])
+        ->name('two-factor.disable');    
 });
