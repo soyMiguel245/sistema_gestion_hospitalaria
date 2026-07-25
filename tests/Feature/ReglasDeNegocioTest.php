@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AtencionMedica;
 use App\Models\Cita;
 use App\Models\Medico;
 use App\Models\Paciente;
@@ -30,7 +31,7 @@ class ReglasDeNegocioTest extends TestCase
         Paciente::factory()->create(['dni' => '12345678']);
 
         $response = $this->actingAs($this->admin())->post('/pacientes', [
-            'dni' => '12345678', // <-- duplicado a propósito
+            'dni' => '12345678',
             'nombres' => 'Juan',
             'apellidos' => 'Test Duplicado',
             'fecha_nacimiento' => '1990-01-01',
@@ -50,7 +51,6 @@ class ReglasDeNegocioTest extends TestCase
 
         $horario = now()->addDays(5)->setTime(10, 0);
 
-        // Primera cita: 10:00 - 10:30 (duracion 30 min)
         Cita::factory()->create([
             'medico_id' => $medico->id,
             'paciente_id' => $paciente1->id,
@@ -59,8 +59,6 @@ class ReglasDeNegocioTest extends TestCase
             'estado' => 'Programada',
         ]);
 
-        // Intento de segunda cita para el MISMO médico, 10:15 -> se solapa
-        // con la primera (10:00-10:30), aunque no sea la misma hora exacta.
         $response = $this->actingAs($this->admin())->post('/citas', [
             'paciente_id' => $paciente2->id,
             'medico_id' => $medico->id,
@@ -78,7 +76,6 @@ class ReglasDeNegocioTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('fecha_hora');
-        // Solo debe existir la cita original, la segunda no se guardó.
         $this->assertEquals(1, Cita::where('medico_id', $medico->id)->count());
     }
 
@@ -94,12 +91,11 @@ class ReglasDeNegocioTest extends TestCase
         Cita::factory()->create([
             'medico_id' => $medico->id,
             'paciente_id' => $paciente1->id,
-            'fecha_hora' => $horario, // 10:00 - 10:30
+            'fecha_hora' => $horario,
             'duracion' => 30,
             'estado' => 'Programada',
         ]);
 
-        // Esta cita empieza justo cuando termina la anterior (10:30) -> NO choca.
         $response = $this->actingAs($this->admin())->post('/citas', [
             'paciente_id' => $paciente2->id,
             'medico_id' => $medico->id,
@@ -118,5 +114,34 @@ class ReglasDeNegocioTest extends TestCase
 
         $response->assertSessionDoesntHaveErrors('fecha_hora');
         $this->assertEquals(2, Cita::where('medico_id', $medico->id)->count());
+    }
+
+    /**
+     * 👇 NUEVO: confirma en automático lo que verificamos a mano en el
+     * navegador — que ver el expediente completo de un paciente queda
+     * registrado en la Bitácora, cumpliendo el RNF-01 ("cada acceso
+     * queda registrado", no solo cada modificación).
+     */
+    #[Test]
+    public function ver_el_historial_de_un_paciente_queda_registrado_en_la_bitacora(): void
+    {
+        $medicoUser = User::factory()->create(['role' => 'medico']);
+        $paciente = Paciente::factory()->create();
+        $medicoModel = Medico::factory()->create();
+
+        AtencionMedica::factory()->create([
+            'paciente_id' => $paciente->id,
+            'medico_id' => $medicoModel->id,
+            'registrado_por' => $medicoUser->id,
+        ]);
+
+        $this->actingAs($medicoUser)->get("/historias/{$paciente->id}");
+
+        $this->assertDatabaseHas('activity_log', [
+            'log_name' => 'historial_clinico',
+            'subject_id' => $paciente->id,
+            'subject_type' => Paciente::class,
+            'causer_id' => $medicoUser->id,
+        ]);
     }
 }
