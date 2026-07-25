@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar el código
+        uses: actions/checkout@v4
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Instalar dependencias de Composer
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copiar .env de ejemplo
+        run: cp .env.example .env
+
+      - name: Generar APP_KEY
+        run: php artisan key:generate
+
+      - name: Instalar dependencias de Node
+        run: npm ci
+
+      - name: Compilar assets (Vite)
+        run: npm run build
+
+      - name: Crear base de datos SQLite para tests
+        run: touch database/database.sqlite
+
+      - name: Ejecutar migraciones
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      - name: Correr la suite de tests
+        run: php artisan test
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
