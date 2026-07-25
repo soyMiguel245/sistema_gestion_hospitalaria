@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class ArchivoMedico extends Model
 {
@@ -33,10 +32,15 @@ class ArchivoMedico extends Model
     }
 
     /**
-     * URL pública para mostrar o descargar el archivo desde el disco 'public'.
+     * 👇 CORREGIDO (hallazgo crítico de seguridad): antes esto devolvía una
+     * URL pública directa (Storage::disk('public')->url(...)), accesible
+     * por CUALQUIERA con el link, sin login ni permisos. Ahora el archivo
+     * vive en el disco 'local' (privado, fuera de /public) y solo se sirve
+     * a través de la ruta controlada archivos.descargar, que exige
+     * autenticación + Policy antes de entregar el contenido.
      */
-    public function getUrlAttribute(): string
+    public function rutaDescarga(): string
     {
-        return Storage::disk('public')->url($this->ruta);
+        return route('archivos.descargar', $this->id);
     }
 }

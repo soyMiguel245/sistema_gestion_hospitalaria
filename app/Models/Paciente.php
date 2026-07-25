@@ -4,36 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Paciente extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'pacientes';
 
     protected $fillable = [
         'dni',
         'numero_historia_clinica',
-
         'nombres',
         'apellidos',
         'fecha_nacimiento',
         'sexo',
         'estado_civil',
         'nacionalidad',
-
         'telefono',
         'correo',
         'direccion',
-
         'contacto_emergencia',
         'telefono_emergencia',
-
         'tipo_sangre',
         'alergias',
         'enfermedades_cronicas',
         'observaciones',
-
         'tipo_seguro',
         'estado',
         'fecha_registro'
@@ -42,9 +39,21 @@ class Paciente extends Model
     protected $casts = [
         'fecha_nacimiento' => 'date',
         'fecha_registro' => 'date',
-        // 'estado' guarda 'Activo'/'Inactivo' como texto (confirmado por
-        // el CHECK constraint de la BD), no es un booleano.
     ];
+
+    /**
+     * 👇 NUEVO: registra en la bitácora quién creó/editó/eliminó un
+     * paciente, y qué campos cambiaron. Solo se registran los campos
+     * que de verdad cambiaron (logOnlyDirty), para no llenar la
+     * bitácora de ruido.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty()
+            ->logExcept(['updated_at'])
+            ->useLogName('paciente');
+    }
 
     public function citas()
     {
@@ -56,15 +65,6 @@ class Paciente extends Model
         return $this->hasMany(AtencionMedica::class);
     }
 
-    /**
-     * La "historia clínica" del paciente NO es una tabla aparte: es la línea
-     * de tiempo completa de sus atenciones médicas, cada una con sus
-     * diagnósticos. Esto reemplaza al antiguo modelo HistoriaClinica,
-     * que duplicaba estos mismos datos en otra tabla.
-     *
-     * Uso: $paciente->historialClinico() para el expediente completo,
-     *      ordenado de la atención más reciente a la más antigua.
-     */
     public function historialClinico()
     {
         return $this->atencionesMedicas()

@@ -38,7 +38,7 @@
                     <h6 class="fw-semibold">🧾 Exámenes</h6>
                     @forelse($examenes as $archivo)
                         <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
-                            <a href="{{ $archivo->url }}" target="_blank" class="text-decoration-none">
+                        <a href="{{ $archivo->rutaDescarga() }}" target="_blank" class="text-decoration-none">
                                 📄 {{ $archivo->nombre_original }}
                             </a>
                             <form action="{{ route('archivos.destroy', $archivo) }}" method="POST" class="d-inline">

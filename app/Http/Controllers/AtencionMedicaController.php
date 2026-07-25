@@ -10,6 +10,7 @@ use App\Models\Medico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AtencionMedicaController extends Controller
 {
@@ -18,7 +19,6 @@ class AtencionMedicaController extends Controller
         $this->authorizeResource(AtencionMedica::class, 'atencion');
     }
 
-    // Listar atenciones médicas
     public function index()
     {
         $atenciones = AtencionMedica::with(['paciente', 'medico', 'cita'])
@@ -28,7 +28,6 @@ class AtencionMedicaController extends Controller
         return view('atenciones.index', compact('atenciones'));
     }
 
-    // Formulario de creación
     public function create()
     {
         $pacientes = Paciente::where('estado', 'Activo')->get();
@@ -38,7 +37,13 @@ class AtencionMedicaController extends Controller
         return view('atenciones.create', compact('pacientes', 'citas', 'medicos'));
     }
 
-    // Guardar nueva atención médica
+    /**
+     * 👇 CORREGIDO (Día 2 del plan): todo el guardado ahora corre dentro de
+     * una transacción. Si falla la creación de un archivo a mitad de camino,
+     * se revierte TODO (la atención y los archivos ya guardados), en vez de
+     * dejar una atención médica a medias sin sus adjuntos, o archivos huérfanos
+     * sin atención asociada.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -73,26 +78,24 @@ class AtencionMedicaController extends Controller
 
         $data['registrado_por'] = Auth::id();
 
-        // Los archivos no van en $data (ya no son columnas de atenciones_medicas)
         $examenes = $request->file('examenes_adjuntos', []);
         $imagenes = $request->file('imagenes_medicas', []);
 
-        $atencion = AtencionMedica::create($data);
-
-        $this->guardarArchivos($atencion, $examenes, 'examen');
-        $this->guardarArchivos($atencion, $imagenes, 'imagen');
+        DB::transaction(function () use ($data, $examenes, $imagenes) {
+            $atencion = AtencionMedica::create($data);
+            $this->guardarArchivos($atencion, $examenes, 'examen');
+            $this->guardarArchivos($atencion, $imagenes, 'imagen');
+        });
 
         return redirect()->route('atenciones.index')->with('success', 'Atención Médica registrada correctamente.');
     }
 
-    // Mostrar una atención médica
     public function show(AtencionMedica $atencion)
     {
         $atencion->load(['paciente', 'medico', 'cita', 'archivos']);
         return view('atenciones.show', compact('atencion'));
     }
 
-    // Formulario para editar
     public function edit(AtencionMedica $atencion)
     {
         $pacientes = Paciente::where('estado', 'Activo')->get();
@@ -103,7 +106,6 @@ class AtencionMedicaController extends Controller
         return view('atenciones.edit', compact('atencion', 'pacientes', 'citas', 'medicos'));
     }
 
-    // Actualizar atención médica
     public function update(Request $request, AtencionMedica $atencion)
     {
         $data = $request->validate([
@@ -124,8 +126,6 @@ class AtencionMedicaController extends Controller
             'peso' => 'nullable|numeric',
             'talla' => 'nullable|numeric',
             'imc' => 'nullable|numeric',
-            // 👇 NUEVO respecto al original: ahora sí se pueden agregar más
-            // archivos al editar (antes update() no tenía esta opción).
             'examenes_adjuntos.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
             'imagenes_medicas.*' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'tipo_paciente' => 'required|in:Particular,Seguro,Convenio',
@@ -142,36 +142,49 @@ class AtencionMedicaController extends Controller
         $imagenes = $request->file('imagenes_medicas', []);
         unset($data['examenes_adjuntos'], $data['imagenes_medicas']);
 
-        $atencion->update($data);
-
-        $this->guardarArchivos($atencion, $examenes, 'examen');
-        $this->guardarArchivos($atencion, $imagenes, 'imagen');
+        DB::transaction(function () use ($atencion, $data, $examenes, $imagenes) {
+            $atencion->update($data);
+            $this->guardarArchivos($atencion, $examenes, 'examen');
+            $this->guardarArchivos($atencion, $imagenes, 'imagen');
+        });
 
         return redirect()->route('atenciones.index')->with('success', 'Atención Médica actualizada correctamente.');
     }
 
     /**
-     * 👇 NUEVO: elimina un archivo puntual (no toda la atención).
-     * Antes no existía forma de borrar un solo archivo sin reescribir
-     * el array JSON completo a mano.
+     * 👇 NUEVO — el corazón del fix de seguridad: esta es la ÚNICA forma
+     * de obtener el contenido de un archivo médico. Verifica permiso con
+     * la misma Policy que protege la atención médica dueña del archivo,
+     * y solo entonces lo sirve desde el disco privado 'local'.
      */
+    public function descargar(ArchivoMedico $archivo)
+    {
+        $this->authorize('view', $archivo->atencionMedica);
+
+        if (! Storage::disk('local')->exists($archivo->ruta)) {
+            abort(404, 'El archivo no existe o fue eliminado.');
+        }
+
+        return Storage::disk('local')->response(
+            $archivo->ruta,
+            $archivo->nombre_original
+        );
+    }
+
     public function destroyArchivo(ArchivoMedico $archivo)
     {
         $this->authorize('update', $archivo->atencionMedica);
 
-        Storage::disk('public')->delete($archivo->ruta);
+        Storage::disk('local')->delete($archivo->ruta);
         $archivo->delete();
 
         return back()->with('success', 'Archivo eliminado correctamente.');
     }
 
-    // Eliminar atención médica
     public function destroy(AtencionMedica $atencion)
     {
-        // Los archivos físicos se borran uno por uno; las filas de
-        // archivos_medicos se borran solas por el cascadeOnDelete() de la FK.
         foreach ($atencion->archivos as $archivo) {
-            Storage::disk('public')->delete($archivo->ruta);
+            Storage::disk('local')->delete($archivo->ruta);
         }
 
         $atencion->delete();
@@ -180,10 +193,9 @@ class AtencionMedicaController extends Controller
     }
 
     /**
-     * Guarda un conjunto de archivos subidos (de un tipo dado) como filas
-     * en archivos_medicos, con su metadata completa.
-     *
-     * @param  \Illuminate\Http\UploadedFile[]  $archivos
+     * 👇 CORREGIDO: ->store($carpeta, 'public') → ->store($carpeta, 'local').
+     * Ahora los archivos se guardan en storage/app/private (fuera de la
+     * carpeta pública), inaccesibles por URL directa.
      */
     private function guardarArchivos(AtencionMedica $atencion, array $archivos, string $tipo): void
     {
@@ -194,7 +206,7 @@ class AtencionMedicaController extends Controller
                 continue;
             }
 
-            $ruta = $file->store($carpeta, 'public');
+            $ruta = $file->store($carpeta, 'local');
 
             ArchivoMedico::create([
                 'atencion_medica_id' => $atencion->id,

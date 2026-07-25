@@ -8,10 +8,12 @@ use App\Models\Paciente;
 use App\Models\Cita;
 use App\Models\Medico;
 use App\Models\User;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class AtencionMedica extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'atenciones_medicas';
 
@@ -34,8 +36,6 @@ class AtencionMedica extends Model
         'peso',
         'talla',
         'imc',
-        // 👇 examenes_adjuntos e imagenes_medicas se quitaron de aquí:
-        // ahora viven en la tabla archivos_medicos, no en columnas JSON.
         'tipo_paciente',
         'costo',
         'descuento',
@@ -56,6 +56,19 @@ class AtencionMedica extends Model
         'talla' => 'decimal:2',
         'imc' => 'decimal:2',
     ];
+
+    /**
+     * 👇 NUEVO: bitácora de auditoría — esta es la tabla clínica más
+     * sensible del sistema (diagnóstico, tratamiento), así que queda
+     * registrado cada cambio con quién lo hizo y cuándo.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty()
+            ->logExcept(['updated_at'])
+            ->useLogName('atencion_medica');
+    }
 
     public function paciente()
     {
@@ -84,9 +97,6 @@ class AtencionMedica extends Model
         return $this->hasMany(Diagnostico::class, 'atencion_medica_id');
     }
 
-    /**
-     * 👇 NUEVO: reemplaza a los campos JSON examenes_adjuntos/imagenes_medicas.
-     */
     public function archivos()
     {
         return $this->hasMany(ArchivoMedico::class, 'atencion_medica_id');

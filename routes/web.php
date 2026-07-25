@@ -11,6 +11,7 @@ use App\Http\Controllers\AtencionMedicaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\EspecialidadController;
 use App\Models\ArchivoMedico;
+use App\Http\Controllers\BitacoraController;
 // Página de bienvenida
 Route::get('/', function () {
     return view('welcome');
@@ -27,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
+Route::get('bitacora', [BitacoraController::class, 'index'])->name('bitacora.index');
 // 🔐 MÓDULOS DEL SISTEMA HOSPITALARIO
 Route::middleware('auth')->group(function () {
 
@@ -54,9 +55,11 @@ Route::middleware('auth')->group(function () {
         'atenciones' => 'atencion' // ✅ Aquí arreglamos la pluralización
     ]);
 
-    Route::delete('archivos-medicos/{archivo}', [AtencionMedicaController::class, 'destroyArchivo'])
-        ->name('archivos.destroy');
+    Route::get('archivos-medicos/{archivo}/descargar', [AtencionMedicaController::class, 'descargar'])
+    ->name('archivos.descargar');
 
+    Route::delete('archivos-medicos/{archivo}', [AtencionMedicaController::class, 'destroyArchivo'])
+    ->name('archivos.destroy');
     // Especialidades
     Route::resource('especialidades', EspecialidadController::class);
 

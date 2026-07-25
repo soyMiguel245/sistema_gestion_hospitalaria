@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Cita extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'codigo_cita',
@@ -41,17 +43,23 @@ class Cita extends Model
         'costo' => 'decimal:2',
     ];
 
+    /**
+     * 👇 NUEVO: bitácora de auditoría para citas (quién agendó, canceló
+     * o reprogramó, y cuándo).
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty()
+            ->logExcept(['updated_at'])
+            ->useLogName('cita');
+    }
+
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);
     }
 
-    /**
-     * 👇 CORREGIDO: antes decía belongsTo(User::class, 'medico_id'),
-     * pero la migración de `citas` liga medico_id a la tabla `medicos`.
-     * Esto causaba que se cargara un User random con el mismo ID
-     * numérico que el médico correcto, en vez del médico real.
-     */
     public function medico()
     {
         return $this->belongsTo(Medico::class, 'medico_id');

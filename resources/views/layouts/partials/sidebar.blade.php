@@ -82,6 +82,12 @@
         <i class="bi bi-bar-chart-fill icon-reporte"></i> Reportes
     </a>
     @endif
+    {{-- BITÁCORA: solo administrador --}}
+    @if(auth()->user()->hasRole('administrador'))
+    <a href="{{ route('bitacora.index') }}">
+        <i class="bi bi-shield-lock-fill icon-bitacora"></i> Bitácora
+    </a>
+    @endif
     <div class="logout-container">
         <form method="POST" action="{{ route('logout') }}">
             @csrf
