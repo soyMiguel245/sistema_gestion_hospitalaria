@@ -6,15 +6,12 @@ use App\Models\Cita;
 use App\Models\Paciente;
 use App\Models\Medico;
 use App\Models\Especialidad;
+use App\Rules\MedicoDisponible;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class CitaController extends Controller
 {
-    /**
-     * Conecta cada acción con CitaPolicy: index->viewAny, create/store->create,
-     * show->view, edit/update->update, destroy->delete.
-     */
     public function __construct()
     {
         $this->authorizeResource(Cita::class, 'cita');
@@ -56,9 +53,18 @@ class CitaController extends Controller
     {
         $request->validate([
             'paciente_id'      => 'required|exists:pacientes,id',
-            'medico_id'        => 'required|exists:medicos,id', // corregido
+            'medico_id'        => 'required|exists:medicos,id',
             'especialidad_id'  => 'required|exists:especialidades,id',
-            'fecha_hora'       => 'required',
+            // 👇 DÍA 9: valida que el médico no tenga otra cita que choque
+            // con este horario (considerando la duración de ambas citas).
+            'fecha_hora'       => [
+                'required',
+                new MedicoDisponible(
+                    medicoId: $request->integer('medico_id') ?: null,
+                    fechaHora: $request->input('fecha_hora'),
+                    duracionMinutos: $request->integer('duracion', 30),
+                ),
+            ],
             'turno'            => 'required',
             'tipo_cita'        => 'required',
             'origen'           => 'required',
@@ -74,6 +80,7 @@ class CitaController extends Controller
             'medico_id'       => $request->medico_id,
             'especialidad_id' => $request->especialidad_id,
             'fecha_hora'      => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
+            'duracion'        => $request->integer('duracion', 30),
             'turno'           => $request->turno,
             'tipo_cita'       => $request->tipo_cita,
             'origen'          => $request->origen,
@@ -112,9 +119,17 @@ class CitaController extends Controller
     {
         $request->validate([
             'paciente_id'      => 'required|exists:pacientes,id',
-            'medico_id'        => 'required|exists:medicos,id', // corregido
+            'medico_id'        => 'required|exists:medicos,id',
             'especialidad_id'  => 'required|exists:especialidades,id',
-            'fecha_hora'       => 'required',
+            'fecha_hora'       => [
+                'required',
+                new MedicoDisponible(
+                    medicoId: $request->integer('medico_id') ?: null,
+                    fechaHora: $request->input('fecha_hora'),
+                    duracionMinutos: $request->integer('duracion', 30),
+                    ignorarCitaId: $cita->id, // no chocar contra sí misma
+                ),
+            ],
             'turno'            => 'required',
             'tipo_cita'        => 'required',
             'origen'           => 'required',
@@ -130,6 +145,7 @@ class CitaController extends Controller
             'medico_id'       => $request->medico_id,
             'especialidad_id' => $request->especialidad_id,
             'fecha_hora'      => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
+            'duracion'        => $request->integer('duracion', 30),
             'turno'           => $request->turno,
             'tipo_cita'       => $request->tipo_cita,
             'origen'          => $request->origen,

@@ -19,12 +19,9 @@ use Illuminate\Http\Request;
 class HistorialClinicoController extends Controller
 {
     /**
-     * 👇 Mismo control de acceso que tenía HistoriaClinicaPolicy:
-     * solo administrador y médico pueden ver contenido clínico.
+     * Mismo control de acceso que tenía HistoriaClinicaPolicy:
+     * solo administrador, médico y enfermera pueden ver contenido clínico.
      * Recepción NO debe verlo (requisito RNF-01 del proyecto).
-     *
-     * Se hace aquí como chequeo directo en vez de authorizeResource()
-     * porque ya no existe un modelo HistoriaClinica al cual atar una Policy.
      */
     public function __construct()
     {
@@ -63,9 +60,22 @@ class HistorialClinicoController extends Controller
      * Expediente clínico completo de un paciente: todas sus atenciones
      * médicas en orden cronológico, con diagnósticos, médico y cita
      * de cada una ya cargados.
+     *
+     * 👇 NUEVO: registra en la Bitácora que este usuario consultó el
+     * expediente completo de este paciente. LogsActivity (el trait que
+     * usan Paciente/Cita/AtencionMedica) solo audita escritura por
+     * diseño — la LECTURA de datos clínicos sensibles necesita este
+     * registro manual para cumplir con el RNF-01 ("cada acceso queda
+     * registrado", no solo cada modificación).
      */
     public function show(Paciente $paciente)
     {
+        activity('historial_clinico')
+            ->causedBy(auth()->user())
+            ->performedOn($paciente)
+            ->withProperties(['accion' => 'lectura_expediente_completo'])
+            ->log("Consultó el historial clínico completo de {$paciente->nombres} {$paciente->apellidos}");
+
         $atenciones = $paciente->historialClinico()->get();
 
         return view('historias.show', compact('paciente', 'atenciones'));
