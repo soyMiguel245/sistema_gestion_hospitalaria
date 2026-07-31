@@ -10,13 +10,91 @@
         th, td { border: 1px solid #000; padding: 5px; text-align: left; }
         th { background-color: #f2f2f2; }
         .footer { text-align: center; font-size: 10px; margin-top: 30px; }
+        .resumen { display: table; width: 100%; margin-bottom: 20px; }
+        .resumen-item {
+            display: table-cell;
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+            width: 33%;
+        }
+        .resumen-item .numero { font-size: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
     <h1>Reporte: {{ ucfirst($reporte) }}</h1>
-    <p>Fecha de generación: {{ date('d/m/Y H:i') }}</p>
+    <p>
+        Fecha de generación: {{ date('d/m/Y H:i') }}
+        @if(isset($fecha_inicio) && isset($fecha_fin))
+            &nbsp;|&nbsp; Rango: {{ \Carbon\Carbon::parse($fecha_inicio)->format('d/m/Y') }}
+            al {{ \Carbon\Carbon::parse($fecha_fin)->format('d/m/Y') }}
+        @endif
+    </p>
 
-    @if($reporte === 'atenciones')
+    @if($reporte === 'dashboard')
+        {{-- 👇 NUEVO: antes no existía esta rama, por eso el PDF salía
+             vacío cuando se exportaba desde el botón del dashboard. --}}
+        <div class="resumen">
+            <div class="resumen-item">
+                <div class="numero">{{ $pacientesAtendidos ?? 0 }}</div>
+                <div>Atenciones en el periodo</div>
+            </div>
+            <div class="resumen-item">
+                <div class="numero">{{ $diagnosticos->count() ?? 0 }}</div>
+                <div>Diagnósticos registrados</div>
+            </div>
+            <div class="resumen-item">
+                <div class="numero">S/ {{ number_format($ingresos->sum('total') ?? 0, 2) }}</div>
+                <div>Ingresos totales</div>
+            </div>
+        </div>
+
+        <h3>Ingresos por tipo de paciente</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo de paciente</th>
+                    <th>Total (S/)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($ingresos as $ingreso)
+                <tr>
+                    <td>{{ $ingreso->tipo_paciente }}</td>
+                    <td>{{ number_format($ingreso->total, 2) }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="2">Sin datos de ingresos en este periodo.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <h3>Diagnósticos del periodo</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Descripción</th>
+                    <th>Tipo</th>
+                    <th>CIE-10</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($diagnosticos as $diagnostico)
+                <tr>
+                    <td>{{ $diagnostico->atencionMedica->paciente->nombres ?? 'N/A' }}
+                        {{ $diagnostico->atencionMedica->paciente->apellidos ?? '' }}</td>
+                    <td>{{ $diagnostico->descripcion }}</td>
+                    <td>{{ $diagnostico->tipo }}</td>
+                    <td>{{ $diagnostico->cie10 ?? '-' }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="4">Sin diagnósticos registrados en este periodo.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+
+    @elseif($reporte === 'atenciones')
         <table>
             <thead>
                 <tr>
@@ -30,7 +108,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach(\App\Models\AtencionMedica::all() as $atencion)
+                @foreach(\App\Models\AtencionMedica::with(['paciente', 'medico'])->get() as $atencion)
                 <tr>
                     <td>{{ $atencion->id }}</td>
                     <td>{{ $atencion->paciente->nombres ?? 'N/A' }} {{ $atencion->paciente->apellidos ?? '' }}</td>
