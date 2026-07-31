@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 
 class DiagnosticoController extends Controller
 {
+    /**
+     * Conecta cada acción con DiagnosticoPolicy. Se agrega ahora, de forma
+     * preventiva, aunque el módulo todavía no tiene rutas activas — así,
+     * cuando se agreguen, ya van a estar protegidas desde el día uno.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Diagnostico::class, 'diagnostico');
+    }
+
     public function index()
     {
         $diagnosticos = Diagnostico::with('atencionMedica')->paginate(10);
@@ -22,7 +32,7 @@ class DiagnosticoController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'atencion_medica_id' => 'required|exists:atenciones_medicas,id',
             'descripcion' => 'required|string',
             'tipo' => 'required|in:Principal,Secundario',
@@ -30,7 +40,7 @@ class DiagnosticoController extends Controller
             'observaciones' => 'nullable|string|max:500',
         ]);
 
-        Diagnostico::create($request->all());
+        Diagnostico::create($validated);
 
         return redirect()->route('diagnosticos.index')
             ->with('success', 'Diagnóstico registrado correctamente');
@@ -44,7 +54,7 @@ class DiagnosticoController extends Controller
 
     public function update(Request $request, Diagnostico $diagnostico)
     {
-        $request->validate([
+        $validated = $request->validate([
             'atencion_medica_id' => 'required|exists:atenciones_medicas,id',
             'descripcion' => 'required|string',
             'tipo' => 'required|in:Principal,Secundario',
@@ -52,7 +62,7 @@ class DiagnosticoController extends Controller
             'observaciones' => 'nullable|string|max:500',
         ]);
 
-        $diagnostico->update($request->all());
+        $diagnostico->update($validated);
 
         return redirect()->route('diagnosticos.index')
             ->with('success', 'Diagnóstico actualizado correctamente');

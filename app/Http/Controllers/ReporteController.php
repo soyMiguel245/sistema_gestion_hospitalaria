@@ -325,10 +325,50 @@ class ReporteController extends Controller
     }
 
     // Exportar PDF (dashboard)
+    /**
+     * 👇 CORREGIDO: antes solo pasaba el nombre del reporte a la vista,
+     * sin ningún dato — por eso el PDF se descargaba pero salía vacío.
+     * Ahora calcula la misma información que ve el dashboard en pantalla
+     * y se la pasa al PDF.
+     */
     public function exportPDF(Request $request)
     {
-        $reporte = $request->reporte ?? 'reporte_general';
-        $pdf = Pdf::loadView('reportes.export_pdf', compact('reporte'));
+        $reporte = $request->reporte ?? 'dashboard';
+
+        [$fecha_inicio, $fecha_fin] = $this->rangoFechas($request);
+
+        $pacientesAtendidos = AtencionMedica::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->count();
+
+        try {
+            $diagnosticos = Diagnostico::with('atencionMedica.paciente')
+                ->whereHas('atencionMedica', function ($query) use ($fecha_inicio, $fecha_fin) {
+                    $query->whereBetween('created_at', [$fecha_inicio, $fecha_fin]);
+                })
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error diagnósticos (PDF): ' . $e->getMessage());
+            $diagnosticos = collect();
+        }
+
+        try {
+            $ingresos = AtencionMedica::selectRaw('tipo_paciente, SUM(costo - descuento) as total')
+                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->groupBy('tipo_paciente')
+                ->get();
+        } catch (\Exception $e) {
+            Log::error('Error ingresos (PDF): ' . $e->getMessage());
+            $ingresos = collect();
+        }
+
+        $pdf = Pdf::loadView('reportes.export_pdf', compact(
+            'reporte',
+            'pacientesAtendidos',
+            'diagnosticos',
+            'ingresos',
+            'fecha_inicio',
+            'fecha_fin'
+        ));
+
         return $pdf->download($reporte . '_' . now()->format('Ymd') . '.pdf');
     }
-}
+}   
