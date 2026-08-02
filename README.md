@@ -1,59 +1,130 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+﻿# Sistema de Gestion Hospitalaria
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web para la gestion de pacientes, citas medicas, historiales clinicos
+y atenciones medicas, desarrollado en Laravel 11 como proyecto academico de
+la Universidad Nacional de Huancavelica (Escuela de Ingenieria de Sistemas).
 
-## About Laravel
+**Estado del proyecto:** en desarrollo activo, sometido a un proceso de
+auditoria y mejora de calidad de software. Ver `docs/INFORME_TECNICO_AVANZADO.md`
+para el detalle completo del proceso, y `docs/MATRIZ_TRAZABILIDAD.md` para el
+estado real de cumplimiento de requerimientos.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack tecnologico
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend:** Laravel 11 (PHP 8.2)
+- **Base de datos:** SQL Server (driver sqlsrv)
+- **Frontend:** Blade + Bootstrap 5 + Bootstrap Icons
+- **Autenticacion:** Laravel Breeze + 2FA (TOTP con pragmarx/google2fa)
+- **Autorizacion:** Laravel Policies (RBAC con 4 roles)
+- **Auditoria:** spatie/laravel-activitylog
+- **Testing:** PHPUnit, 31+ tests automatizados
+- **CI/CD:** GitHub Actions (corre la suite completa en cada push)
+- **Contenedores:** Docker + Docker Compose (ver seccion de instalacion)
 
-## Learning Laravel
+## Roles del sistema
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Rol | Permisos principales |
+|---|---|
+| Administrador | Acceso total a todos los modulos |
+| Medico | Pacientes, citas, historias clinicas, atenciones |
+| Recepcion | Pacientes, citas (sin acceso a datos clinicos) |
+| Enfermera | Pacientes, citas, historias clinicas (solo lectura) |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Instalacion local (sin Docker)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Requisitos
+- PHP 8.2+
+- Composer
+- Node.js 20+
+- SQL Server (local o remoto), con el driver ODBC 17 + extension sqlsrv/pdo_sqlsrv para PHP
 
-### Premium Partners
+### Pasos
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+git clone https://github.com/soyMiguel245/sistema_gestion_hospitalaria.git
+cd sistema_gestion_hospitalaria
 
-## Contributing
+composer install
+npm install
+npm run build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+cp .env.example .env
+php artisan key:generate
 
-## Code of Conduct
+Edita el archivo .env con los datos de tu conexion a SQL Server:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+DB_CONNECTION=sqlsrv
+DB_HOST=localhost
+DB_PORT=1433
+DB_DATABASE=sistema_gestion_hospitalaria
+DB_USERNAME=sa
+DB_PASSWORD=tu_password
 
-## Security Vulnerabilities
+Luego:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+php artisan migrate
+php artisan db:seed
+php artisan serve
 
-## License
+La aplicacion queda disponible en http://localhost:8000
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Instalacion con Docker (recomendada para evaluacion rapida)
+
+Requiere Docker Desktop instalado y corriendo (en Windows, con WSL2 habilitado).
+
+docker compose up --build
+
+Esto levanta automaticamente:
+- El contenedor de la aplicacion (PHP + Laravel)
+- Un contenedor de SQL Server 2022
+- Crea la base de datos y corre las migraciones al iniciar
+
+La aplicacion queda disponible en http://localhost:8000
+
+Nota: si tienes SQL Server instalado localmente en tu maquina Windows,
+detente ese servicio antes de levantar Docker, ya que ambos usan el puerto
+1433 por defecto y entraran en conflicto.
+
+---
+
+## Crear un usuario administrador
+
+Por seguridad, el registro publico (/register) asigna el rol recepcion
+por defecto. Para crear el primer administrador:
+
+php artisan tinker
+
+$u = App\Models\User::first();
+$u->role = 'administrador';
+$u->save();
+
+---
+
+## Correr los tests
+
+php artisan test
+
+31+ tests cubren: autenticacion, control de acceso por rol (44 combinaciones
+verificadas), reglas de negocio (DNI unico, choque de horarios medicos),
+transacciones atomicas y auditoria de accesos.
+
+---
+
+## Documentacion adicional
+
+Toda la documentacion extendida del proyecto esta en la carpeta docs/:
+
+- INFORME_TECNICO_AVANZADO.md - proceso completo de auditoria y mejora de calidad
+- MATRIZ_TRAZABILIDAD.md - cumplimiento real de requerimientos funcionales y no funcionales
+- DECISION_2FA.md - decisiones de alcance documentadas
+- ESTADO_DOCKER.md - estado de verificacion de la configuracion Docker
+
+## Licencia
+
+Proyecto academico desarrollado para la Universidad Nacional de Huancavelica.
+Ver archivo LICENSE. Uso educativo.
