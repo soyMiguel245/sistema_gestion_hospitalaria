@@ -4,14 +4,15 @@ RUN apt-get update && apt-get install -y \
     curl gnupg2 apt-transport-https unixodbc-dev libzip-dev zip unzip git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/$(grep VERSION_ID /etc/os-release | cut -d '"' -f2 | cut -d '.' -f1)/prod.list \
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc \
+       | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && curl -sSL https://packages.microsoft.com/config/debian/12/prod.list \
        > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pecl install sqlsrv pdo_sqlsrv \
+RUN pecl install sqlsrv-5.11.1 pdo_sqlsrv-5.11.1 \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && docker-php-ext-install pdo zip
 
@@ -32,5 +33,4 @@ COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
-
 ENTRYPOINT ["/entrypoint.sh"]
