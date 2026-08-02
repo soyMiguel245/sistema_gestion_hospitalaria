@@ -4,15 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('archivos_medicos', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('atencion_medica_id')
-                  ->constrained('atenciones_medicas')
-                  ->cascadeOnDelete(); // si se borra la atención, se borran sus archivos
+                ->constrained('atenciones_medicas')
+                ->cascadeOnDelete(); // si se borra la atención, se borran sus archivos
 
             // Distingue si es un examen (pdf/jpg/png) o una imagen médica (jpg/png)
             $table->enum('tipo', ['examen', 'imagen']);
@@ -23,8 +24,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('tamano_bytes')->nullable();
 
             $table->foreignId('subido_por')
-                  ->constrained('users')
-                  ->onDelete('no action');
+                ->constrained('users')
+                ->onDelete('no action');
 
             $table->timestamps();
         });

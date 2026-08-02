@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('diagnosticos', function (Blueprint $table) {
@@ -12,8 +13,8 @@ return new class extends Migration {
 
             // 🔗 Relación con Atención Médica
             $table->foreignId('atencion_medica_id')
-                  ->constrained('atenciones_medicas')
-                  ->cascadeOnDelete();
+                ->constrained('atenciones_medicas')
+                ->cascadeOnDelete();
 
             // Datos del diagnóstico
             $table->text('descripcion');

@@ -33,7 +33,7 @@ class Paciente extends Model
         'observaciones',
         'tipo_seguro',
         'estado',
-        'fecha_registro'
+        'fecha_registro',
     ];
 
     protected $casts = [

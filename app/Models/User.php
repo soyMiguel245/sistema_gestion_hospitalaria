@@ -62,7 +62,7 @@ class User extends Authenticatable
 
         if (! $role) {
             throw new \InvalidArgumentException(
-                "El rol '{$value}' no existe. Roles válidos: " .
+                "El rol '{$value}' no existe. Roles válidos: ".
                 Role::pluck('nombre')->implode(', ')
             );
         }
@@ -135,7 +135,7 @@ class User extends Authenticatable
     public function confirmarDosFactores(): array
     {
         $codigos = collect(range(1, 8))
-            ->map(fn () => Str::random(10) . '-' . Str::random(10))
+            ->map(fn () => Str::random(10).'-'.Str::random(10))
             ->all();
 
         $this->forceFill([

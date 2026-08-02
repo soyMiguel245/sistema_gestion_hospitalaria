@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     public function up(): void
     {
         // Primero eliminamos la tabla si existe
@@ -20,16 +20,16 @@ return new class extends Migration {
 
             // RELACIONES
             $table->foreignId('paciente_id')
-                  ->constrained('pacientes')
-                  ->cascadeOnDelete(); // Seguro, eliminar paciente elimina sus citas
+                ->constrained('pacientes')
+                ->cascadeOnDelete(); // Seguro, eliminar paciente elimina sus citas
 
             $table->foreignId('medico_id')
-                  ->constrained('medicos')
-                  ->onDelete('no action'); // ⚠ Evita multiple cascade paths
+                ->constrained('medicos')
+                ->onDelete('no action'); // ⚠ Evita multiple cascade paths
 
             $table->foreignId('especialidad_id')
-                  ->constrained('especialidades')
-                  ->onDelete('no action'); // ⚠ Evita multiple cascade paths
+                ->constrained('especialidades')
+                ->onDelete('no action'); // ⚠ Evita multiple cascade paths
 
             // FECHA Y TIEMPO
             $table->dateTime('fecha_hora');
@@ -63,7 +63,7 @@ return new class extends Migration {
                 'Atendida',
                 'Cancelada',
                 'Reprogramada',
-                'No asistió'
+                'No asistió',
             ])->default('Programada');
 
             $table->boolean('confirmada')->default(false);

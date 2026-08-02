@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Diagnostico;
+use App\Models\User;
 
 /**
  * Mismo criterio que AtencionMedicaPolicy: un diagnóstico es dato clínico

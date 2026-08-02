@@ -16,11 +16,11 @@ class Medico extends Model
         'dni',
         'cmp',
         'especialidad_id',
-        'estado'
+        'estado',
     ];
 
     protected $casts = [
-        'estado' => 'boolean'
+        'estado' => 'boolean',
     ];
 
     public function user()

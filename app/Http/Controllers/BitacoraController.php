@@ -17,6 +17,7 @@ class BitacoraController extends Controller
             if (! $request->user() || ! $request->user()->hasRole('administrador')) {
                 abort(403, 'Solo el administrador puede ver la bitácora de auditoría.');
             }
+
             return $next($request);
         });
     }

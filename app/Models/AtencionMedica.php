@@ -4,10 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Paciente;
-use App\Models\Cita;
-use App\Models\Medico;
-use App\Models\User;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -43,7 +39,7 @@ class AtencionMedica extends Model
         'numero_autorizacion',
         'estado',
         'proxima_cita',
-        'alta_medica'
+        'alta_medica',
     ];
 
     protected $casts = [
@@ -78,7 +74,7 @@ class AtencionMedica extends Model
     public function cita()
     {
         return $this->belongsTo(Cita::class)->withDefault([
-            'fecha_hora' => null
+            'fecha_hora' => null,
         ]);
     }
 

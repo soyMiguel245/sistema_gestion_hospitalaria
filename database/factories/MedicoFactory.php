@@ -11,9 +11,9 @@ class MedicoFactory extends Factory
     {
         return [
             'nombres' => fake()->firstName(),
-            'apellidos' => fake()->lastName() . ' ' . fake()->lastName(),
+            'apellidos' => fake()->lastName().' '.fake()->lastName(),
             'dni' => fake()->unique()->numerify('########'),
-            'cmp' => 'CMP' . fake()->unique()->numerify('#####'),
+            'cmp' => 'CMP'.fake()->unique()->numerify('#####'),
             'especialidad_id' => Especialidad::factory(),
             'estado' => 1,
         ];

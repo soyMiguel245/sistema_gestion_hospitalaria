@@ -2,10 +2,11 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('medicos', function (Blueprint $table) {
@@ -17,9 +18,9 @@ return new class extends Migration {
             // La unicidad real (un User no puede ser 2 médicos) se aplica
             // abajo con un índice único FILTRADO (solo sobre valores no nulos).
             $table->foreignId('user_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->nullOnDelete();
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->string('nombres');
             $table->string('apellidos');
@@ -27,8 +28,8 @@ return new class extends Migration {
             $table->string('cmp')->unique();
 
             $table->foreignId('especialidad_id')
-                  ->constrained('especialidades')
-                  ->onDelete('no action'); // 👈 antes era cascadeOnDelete(), ya corregido también
+                ->constrained('especialidades')
+                ->onDelete('no action'); // 👈 antes era cascadeOnDelete(), ya corregido también
 
             $table->boolean('estado')->default(1);
 

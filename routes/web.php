@@ -1,17 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PacienteController;
-use App\Http\Controllers\MedicoController;
-use App\Http\Controllers\CitaController;
-use App\Http\Controllers\HistorialClinicoController;
 use App\Http\Controllers\AtencionMedicaController;
-use App\Http\Controllers\ReporteController;
-use App\Http\Controllers\EspecialidadController;
-use App\Models\ArchivoMedico;
 use App\Http\Controllers\BitacoraController;
+use App\Http\Controllers\CitaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EspecialidadController;
+use App\Http\Controllers\HistorialClinicoController;
+use App\Http\Controllers\MedicoController;
+use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReporteController;
+use Illuminate\Support\Facades\Route;
+
 // Página de bienvenida
 Route::get('/', function () {
     return view('welcome');
@@ -43,37 +43,36 @@ Route::middleware('auth')->group(function () {
     Route::resource('citas', CitaController::class);
     Route::get('/medicos/{especialidad}', [CitaController::class, 'getMedicos']);
 
-     // Historias Clínicas (solo lectura: se arman desde AtencionMedica)
+    // Historias Clínicas (solo lectura: se arman desde AtencionMedica)
     Route::get('historias', [HistorialClinicoController::class, 'index'])
-    ->name('historias.index');
+        ->name('historias.index');
     Route::get('historias/{paciente}', [HistorialClinicoController::class, 'show'])
-    ->name('historias.show');
-
+        ->name('historias.show');
 
     // Atenciones Médicas
     Route::resource('atenciones', AtencionMedicaController::class)->parameters([
-        'atenciones' => 'atencion' // ✅ Aquí arreglamos la pluralización
+        'atenciones' => 'atencion', // ✅ Aquí arreglamos la pluralización
     ]);
 
     Route::get('archivos-medicos/{archivo}/descargar', [AtencionMedicaController::class, 'descargar'])
-    ->name('archivos.descargar');
+        ->name('archivos.descargar');
 
     Route::delete('archivos-medicos/{archivo}', [AtencionMedicaController::class, 'destroyArchivo'])
-    ->name('archivos.destroy');
+        ->name('archivos.destroy');
     // Especialidades
     Route::resource('especialidades', EspecialidadController::class)
-    ->parameters(['especialidades' => 'especialidad']);
+        ->parameters(['especialidades' => 'especialidad']);
 
     // Reportes clínicos
     Route::prefix('reportes')->group(function () {
-        Route::get('/', [ReporteController::class,'dashboard'])->name('reportes.index');
-        Route::get('dashboard', [ReporteController::class,'dashboard'])->name('reportes.dashboard');
-        Route::get('pacientes', [ReporteController::class,'pacientes'])->name('reportes.pacientes');
-        Route::get('historial', [ReporteController::class,'historial'])->name('reportes.historial');
-        Route::get('diagnosticos', [ReporteController::class,'diagnosticos'])->name('reportes.diagnosticos');
-        Route::get('procedimientos', [ReporteController::class,'procedimientos'])->name('reportes.procedimientos');
-        Route::get('signos', [ReporteController::class,'signos'])->name('reportes.signos');
-        Route::get('export/{tipo}', [ReporteController::class,'export'])->name('reportes.export');
+        Route::get('/', [ReporteController::class, 'dashboard'])->name('reportes.index');
+        Route::get('dashboard', [ReporteController::class, 'dashboard'])->name('reportes.dashboard');
+        Route::get('pacientes', [ReporteController::class, 'pacientes'])->name('reportes.pacientes');
+        Route::get('historial', [ReporteController::class, 'historial'])->name('reportes.historial');
+        Route::get('diagnosticos', [ReporteController::class, 'diagnosticos'])->name('reportes.diagnosticos');
+        Route::get('procedimientos', [ReporteController::class, 'procedimientos'])->name('reportes.procedimientos');
+        Route::get('signos', [ReporteController::class, 'signos'])->name('reportes.signos');
+        Route::get('export/{tipo}', [ReporteController::class, 'export'])->name('reportes.export');
         Route::get('exportar-pdf', [ReporteController::class, 'exportPDF'])->name('reportes.exportPDF');
         Route::get('/reportes/tablero', [ReporteController::class, 'dashboard'])->name('reportes.tablero');
     });

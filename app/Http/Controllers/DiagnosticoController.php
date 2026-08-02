@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Diagnostico;
 use App\Models\AtencionMedica;
+use App\Models\Diagnostico;
 use Illuminate\Http\Request;
 
 class DiagnosticoController extends Controller
@@ -21,12 +21,14 @@ class DiagnosticoController extends Controller
     public function index()
     {
         $diagnosticos = Diagnostico::with('atencionMedica')->paginate(10);
+
         return view('diagnosticos.index', compact('diagnosticos'));
     }
 
     public function create()
     {
         $atenciones = AtencionMedica::all();
+
         return view('diagnosticos.create', compact('atenciones'));
     }
 
@@ -49,6 +51,7 @@ class DiagnosticoController extends Controller
     public function edit(Diagnostico $diagnostico)
     {
         $atenciones = AtencionMedica::all();
+
         return view('diagnosticos.edit', compact('diagnostico', 'atenciones'));
     }
 
@@ -71,6 +74,7 @@ class DiagnosticoController extends Controller
     public function destroy(Diagnostico $diagnostico)
     {
         $diagnostico->delete();
+
         return redirect()->route('diagnosticos.index')
             ->with('success', 'Diagnóstico eliminado correctamente');
     }

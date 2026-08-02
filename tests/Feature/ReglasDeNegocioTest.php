@@ -8,8 +8,8 @@ use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Reglas de negocio críticas del sistema. A diferencia de RolePermissionsTest

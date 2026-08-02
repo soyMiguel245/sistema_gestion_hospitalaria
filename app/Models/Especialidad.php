@@ -14,7 +14,7 @@ class Especialidad extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'estado'
+        'estado',
     ];
 
     // Relación: una especialidad tiene muchos médicos

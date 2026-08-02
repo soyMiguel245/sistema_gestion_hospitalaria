@@ -34,7 +34,7 @@ class Cita extends Model
         'estado',
         'confirmada',
         'motivo_cancelacion',
-        'motivo_reprogramacion'
+        'motivo_reprogramacion',
     ];
 
     protected $casts = [

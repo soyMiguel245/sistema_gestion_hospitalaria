@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use App\Models\Paciente;
 use App\Models\AtencionMedica;
 use App\Models\Diagnostico;
-use App\Models\User;
+use App\Models\Paciente;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ReporteController extends Controller
 {
@@ -24,6 +23,7 @@ class ReporteController extends Controller
             if (! $request->user() || ! $request->user()->hasRole(['administrador', 'medico'])) {
                 abort(403, 'No tienes permiso para ver reportes.');
             }
+
             return $next($request);
         });
     }
@@ -59,7 +59,7 @@ class ReporteController extends Controller
                 })
                 ->get();
         } catch (\Exception $e) {
-            Log::error('Error diagnósticos: ' . $e->getMessage());
+            Log::error('Error diagnósticos: '.$e->getMessage());
             $diagnosticos = collect();
         }
 
@@ -69,7 +69,7 @@ class ReporteController extends Controller
                 ->groupBy('tipo_paciente')
                 ->get();
         } catch (\Exception $e) {
-            Log::error('Error ingresos: ' . $e->getMessage());
+            Log::error('Error ingresos: '.$e->getMessage());
             $ingresos = collect();
         }
 
@@ -147,7 +147,7 @@ class ReporteController extends Controller
         })->get();
 
         $frecuencia = $diagnosticos
-            ->groupBy(fn ($d) => $d->descripcion . ($d->cie10 ? " ({$d->cie10})" : ''))
+            ->groupBy(fn ($d) => $d->descripcion.($d->cie10 ? " ({$d->cie10})" : ''))
             ->map->count()
             ->sortDesc();
 
@@ -224,7 +224,7 @@ class ReporteController extends Controller
         }
 
         [$fecha_inicio, $fecha_fin] = $this->rangoFechas($request);
-        $filename = "reporte_{$tipo}_" . now()->format('Ymd_His') . '.csv';
+        $filename = "reporte_{$tipo}_".now()->format('Ymd_His').'.csv';
 
         $callback = function () use ($tipo, $fecha_inicio, $fecha_fin) {
             $file = fopen('php://output', 'w');
@@ -266,8 +266,8 @@ class ReporteController extends Controller
             ->each(function ($a) use ($file) {
                 fputcsv($file, [
                     $a->created_at->format('d/m/Y H:i'),
-                    trim(($a->paciente->nombres ?? '-') . ' ' . ($a->paciente->apellidos ?? '')),
-                    trim(($a->medico->nombres ?? '-') . ' ' . ($a->medico->apellidos ?? '')),
+                    trim(($a->paciente->nombres ?? '-').' '.($a->paciente->apellidos ?? '')),
+                    trim(($a->medico->nombres ?? '-').' '.($a->medico->apellidos ?? '')),
                     $a->motivo_consulta,
                     $a->estado,
                 ]);
@@ -298,8 +298,8 @@ class ReporteController extends Controller
             ->each(function ($a) use ($file) {
                 fputcsv($file, [
                     $a->created_at->format('d/m/Y H:i'),
-                    trim(($a->paciente->nombres ?? '-') . ' ' . ($a->paciente->apellidos ?? '')),
-                    trim(($a->medico->nombres ?? '-') . ' ' . ($a->medico->apellidos ?? '')),
+                    trim(($a->paciente->nombres ?? '-').' '.($a->paciente->apellidos ?? '')),
+                    trim(($a->medico->nombres ?? '-').' '.($a->medico->apellidos ?? '')),
                     $a->procedimientos,
                 ]);
             });
@@ -314,7 +314,7 @@ class ReporteController extends Controller
             ->each(function ($a) use ($file) {
                 fputcsv($file, [
                     $a->created_at->format('d/m/Y H:i'),
-                    trim(($a->paciente->nombres ?? '-') . ' ' . ($a->paciente->apellidos ?? '')),
+                    trim(($a->paciente->nombres ?? '-').' '.($a->paciente->apellidos ?? '')),
                     $a->presion_arterial,
                     $a->frecuencia_cardiaca,
                     $a->frecuencia_respiratoria,
@@ -346,7 +346,7 @@ class ReporteController extends Controller
                 })
                 ->get();
         } catch (\Exception $e) {
-            Log::error('Error diagnósticos (PDF): ' . $e->getMessage());
+            Log::error('Error diagnósticos (PDF): '.$e->getMessage());
             $diagnosticos = collect();
         }
 
@@ -356,7 +356,7 @@ class ReporteController extends Controller
                 ->groupBy('tipo_paciente')
                 ->get();
         } catch (\Exception $e) {
-            Log::error('Error ingresos (PDF): ' . $e->getMessage());
+            Log::error('Error ingresos (PDF): '.$e->getMessage());
             $ingresos = collect();
         }
 
@@ -369,6 +369,6 @@ class ReporteController extends Controller
             'fecha_fin'
         ));
 
-        return $pdf->download($reporte . '_' . now()->format('Ymd') . '.pdf');
+        return $pdf->download($reporte.'_'.now()->format('Ymd').'.pdf');
     }
-}   
+}

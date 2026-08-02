@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Prueba automatizada de la matriz de roles que se verificó manualmente
@@ -29,9 +29,9 @@ class RolePermissionsTest extends TestCase
     {
         return [
             'administrador' => User::factory()->create(['role' => 'administrador']),
-            'medico'        => User::factory()->create(['role' => 'medico']),
-            'recepcion'     => User::factory()->create(['role' => 'recepcion']),
-            'enfermera'     => User::factory()->create(['role' => 'enfermera']),
+            'medico' => User::factory()->create(['role' => 'medico']),
+            'recepcion' => User::factory()->create(['role' => 'recepcion']),
+            'enfermera' => User::factory()->create(['role' => 'enfermera']),
         ];
     }
 

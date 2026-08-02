@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cita;
-use App\Models\Paciente;
-use App\Models\Medico;
 use App\Models\Especialidad;
+use App\Models\Medico;
+use App\Models\Paciente;
 use App\Rules\MedicoDisponible;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class CitaController extends Controller
 {
@@ -52,12 +52,12 @@ class CitaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'paciente_id'      => 'required|exists:pacientes,id',
-            'medico_id'        => 'required|exists:medicos,id',
-            'especialidad_id'  => 'required|exists:especialidades,id',
+            'paciente_id' => 'required|exists:pacientes,id',
+            'medico_id' => 'required|exists:medicos,id',
+            'especialidad_id' => 'required|exists:especialidades,id',
             // 👇 DÍA 9: valida que el médico no tenga otra cita que choque
             // con este horario (considerando la duración de ambas citas).
-            'fecha_hora'       => [
+            'fecha_hora' => [
                 'required',
                 new MedicoDisponible(
                     medicoId: $request->integer('medico_id') ?: null,
@@ -65,32 +65,32 @@ class CitaController extends Controller
                     duracionMinutos: $request->integer('duracion', 30),
                 ),
             ],
-            'turno'            => 'required',
-            'tipo_cita'        => 'required',
-            'origen'           => 'required',
-            'area_servicio'    => 'required',
-            'prioridad'        => 'required',
-            'motivo'           => 'required',
-            'tipo_paciente'    => 'required',
-            'estado'           => 'required',
+            'turno' => 'required',
+            'tipo_cita' => 'required',
+            'origen' => 'required',
+            'area_servicio' => 'required',
+            'prioridad' => 'required',
+            'motivo' => 'required',
+            'tipo_paciente' => 'required',
+            'estado' => 'required',
         ]);
 
         Cita::create([
-            'paciente_id'     => $request->paciente_id,
-            'medico_id'       => $request->medico_id,
+            'paciente_id' => $request->paciente_id,
+            'medico_id' => $request->medico_id,
             'especialidad_id' => $request->especialidad_id,
-            'fecha_hora'      => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
-            'duracion'        => $request->integer('duracion', 30),
-            'turno'           => $request->turno,
-            'tipo_cita'       => $request->tipo_cita,
-            'origen'          => $request->origen,
-            'area_servicio'   => $request->area_servicio,
-            'prioridad'       => $request->prioridad,
-            'motivo'          => $request->motivo,
-            'tipo_paciente'   => $request->tipo_paciente,
-            'estado'          => $request->estado,
-            'codigo_cita'     => 'CITA-' . now()->timestamp,
-            'confirmada'      => false,
+            'fecha_hora' => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
+            'duracion' => $request->integer('duracion', 30),
+            'turno' => $request->turno,
+            'tipo_cita' => $request->tipo_cita,
+            'origen' => $request->origen,
+            'area_servicio' => $request->area_servicio,
+            'prioridad' => $request->prioridad,
+            'motivo' => $request->motivo,
+            'tipo_paciente' => $request->tipo_paciente,
+            'estado' => $request->estado,
+            'codigo_cita' => 'CITA-'.now()->timestamp,
+            'confirmada' => false,
         ]);
 
         return redirect()->route('citas.index')
@@ -101,6 +101,7 @@ class CitaController extends Controller
     public function show(Cita $cita)
     {
         $cita->load(['paciente', 'medico', 'especialidad']);
+
         return view('citas.show', compact('cita'));
     }
 
@@ -118,10 +119,10 @@ class CitaController extends Controller
     public function update(Request $request, Cita $cita)
     {
         $request->validate([
-            'paciente_id'      => 'required|exists:pacientes,id',
-            'medico_id'        => 'required|exists:medicos,id',
-            'especialidad_id'  => 'required|exists:especialidades,id',
-            'fecha_hora'       => [
+            'paciente_id' => 'required|exists:pacientes,id',
+            'medico_id' => 'required|exists:medicos,id',
+            'especialidad_id' => 'required|exists:especialidades,id',
+            'fecha_hora' => [
                 'required',
                 new MedicoDisponible(
                     medicoId: $request->integer('medico_id') ?: null,
@@ -130,30 +131,30 @@ class CitaController extends Controller
                     ignorarCitaId: $cita->id, // no chocar contra sí misma
                 ),
             ],
-            'turno'            => 'required',
-            'tipo_cita'        => 'required',
-            'origen'           => 'required',
-            'area_servicio'    => 'required',
-            'prioridad'        => 'required',
-            'motivo'           => 'required',
-            'tipo_paciente'    => 'required',
-            'estado'           => 'required',
+            'turno' => 'required',
+            'tipo_cita' => 'required',
+            'origen' => 'required',
+            'area_servicio' => 'required',
+            'prioridad' => 'required',
+            'motivo' => 'required',
+            'tipo_paciente' => 'required',
+            'estado' => 'required',
         ]);
 
         $cita->update([
-            'paciente_id'     => $request->paciente_id,
-            'medico_id'       => $request->medico_id,
+            'paciente_id' => $request->paciente_id,
+            'medico_id' => $request->medico_id,
             'especialidad_id' => $request->especialidad_id,
-            'fecha_hora'      => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
-            'duracion'        => $request->integer('duracion', 30),
-            'turno'           => $request->turno,
-            'tipo_cita'       => $request->tipo_cita,
-            'origen'          => $request->origen,
-            'area_servicio'   => $request->area_servicio,
-            'prioridad'       => $request->prioridad,
-            'motivo'          => $request->motivo,
-            'tipo_paciente'   => $request->tipo_paciente,
-            'estado'          => $request->estado,
+            'fecha_hora' => Carbon::parse($request->fecha_hora)->format('Y-m-d H:i:s'),
+            'duracion' => $request->integer('duracion', 30),
+            'turno' => $request->turno,
+            'tipo_cita' => $request->tipo_cita,
+            'origen' => $request->origen,
+            'area_servicio' => $request->area_servicio,
+            'prioridad' => $request->prioridad,
+            'motivo' => $request->motivo,
+            'tipo_paciente' => $request->tipo_paciente,
+            'estado' => $request->estado,
         ]);
 
         return redirect()->route('citas.index')

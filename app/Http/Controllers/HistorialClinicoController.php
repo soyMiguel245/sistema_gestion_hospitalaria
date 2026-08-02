@@ -29,6 +29,7 @@ class HistorialClinicoController extends Controller
             if (! $request->user() || ! $request->user()->hasRole(['administrador', 'medico', 'enfermera'])) {
                 abort(403, 'No tienes permiso para ver historias clínicas.');
             }
+
             return $next($request);
         });
     }
@@ -46,8 +47,8 @@ class HistorialClinicoController extends Controller
                 $buscar = $request->input('buscar');
                 $query->where(function ($q) use ($buscar) {
                     $q->where('nombres', 'like', "%{$buscar}%")
-                      ->orWhere('apellidos', 'like', "%{$buscar}%")
-                      ->orWhere('dni', 'like', "%{$buscar}%");
+                        ->orWhere('apellidos', 'like', "%{$buscar}%")
+                        ->orWhere('dni', 'like', "%{$buscar}%");
                 });
             })
             ->orderBy('apellidos')

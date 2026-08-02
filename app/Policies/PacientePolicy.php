@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Paciente;
+use App\Models\User;
 
 class PacientePolicy
 {

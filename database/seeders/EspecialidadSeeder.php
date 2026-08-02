@@ -54,13 +54,13 @@ class EspecialidadSeeder extends Seeder
             'Geriatría',
             'Medicina Familiar',
             'Medicina Física y Rehabilitación',
-            'Oncología'
+            'Oncología',
         ];
 
         foreach ($especialidades as $nombre) {
             DB::table('especialidades')->insert([
                 'nombre' => $nombre,
-                'estado' => 1
+                'estado' => 1,
             ]);
         }
     }

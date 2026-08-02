@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\AtencionMedica;
-use App\Models\Cita;
-use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\Paciente;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Cobertura del controlador con la lógica más delicada del sistema:

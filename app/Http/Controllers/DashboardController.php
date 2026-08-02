@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Paciente;
-use App\Models\Cita;
 use App\Models\AtencionMedica;
+use App\Models\Cita;
+use App\Models\Paciente;
 
 class DashboardController extends Controller
 {

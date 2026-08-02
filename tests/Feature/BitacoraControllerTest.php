@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Activitylog\Models\Activity;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Cobertura del controlador de bitácora de auditoría: solo administrador

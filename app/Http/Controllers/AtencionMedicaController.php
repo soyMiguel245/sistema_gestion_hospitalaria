@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AtencionMedica;
 use App\Models\ArchivoMedico;
-use App\Models\Paciente;
+use App\Models\AtencionMedica;
 use App\Models\Cita;
 use App\Models\Medico;
+use App\Models\Paciente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AtencionMedicaController extends Controller
 {
@@ -93,6 +93,7 @@ class AtencionMedicaController extends Controller
     public function show(AtencionMedica $atencion)
     {
         $atencion->load(['paciente', 'medico', 'cita', 'archivos']);
+
         return view('atenciones.show', compact('atencion'));
     }
 

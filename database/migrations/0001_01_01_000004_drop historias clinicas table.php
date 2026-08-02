@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Schema;
 //
 // ⚠️ Corre esto SOLO si confirmaste que no hay datos reales de historias_clinicas
 // que necesites conservar (según la conversación, solo tenías datos de prueba).
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::dropIfExists('historias_clinicas');

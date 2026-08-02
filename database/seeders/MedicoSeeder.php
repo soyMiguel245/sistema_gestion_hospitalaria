@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Medico;
+use Illuminate\Database\Seeder;
 
 class MedicoSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class MedicoSeeder extends Seeder
             'dni' => '12345678',
             'cmp' => 'CMP12345',
             'especialidad_id' => 1, // Asegúrate de que exista una especialidad con id=1
-            'estado' => 1
+            'estado' => 1,
         ]);
     }
 }

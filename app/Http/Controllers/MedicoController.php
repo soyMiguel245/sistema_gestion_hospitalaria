@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medico;
 use App\Models\Especialidad;
+use App\Models\Medico;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\QueryException;
 
 class MedicoController extends Controller
 {
@@ -59,7 +59,7 @@ class MedicoController extends Controller
 
             if ($request->boolean('crear_usuario')) {
                 $user = User::create([
-                    'name' => $request->nombres . ' ' . $request->apellidos,
+                    'name' => $request->nombres.' '.$request->apellidos,
                     'email' => $request->email,
                     'password' => $request->password, // el cast 'hashed' lo encripta
                     'role' => 'medico',
@@ -96,8 +96,8 @@ class MedicoController extends Controller
         $request->validate([
             'nombres' => 'required|string',
             'apellidos' => 'required|string',
-            'dni' => 'required|string|unique:medicos,dni,' . $medico->id,
-            'cmp' => 'required|string|unique:medicos,cmp,' . $medico->id,
+            'dni' => 'required|string|unique:medicos,dni,'.$medico->id,
+            'cmp' => 'required|string|unique:medicos,cmp,'.$medico->id,
             'especialidad_id' => 'required|exists:especialidades,id',
             'estado' => 'required|boolean',
         ]);
@@ -108,7 +108,7 @@ class MedicoController extends Controller
             'dni',
             'cmp',
             'especialidad_id',
-            'estado'
+            'estado',
         ]));
 
         return redirect()->route('medicos.index')

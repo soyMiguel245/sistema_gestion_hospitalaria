@@ -7,8 +7,8 @@ use App\Models\Especialidad;
 use App\Models\Medico;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 /**
  * Cobertura del controlador de médicos: control de acceso vía Policy

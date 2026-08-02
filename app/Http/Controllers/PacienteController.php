@@ -20,6 +20,7 @@ class PacienteController extends Controller
     public function index()
     {
         $pacientes = Paciente::orderBy('id', 'desc')->get();
+
         return view('pacientes.index', compact('pacientes'));
     }
 
@@ -58,7 +59,7 @@ class PacienteController extends Controller
 
         Paciente::create([
             'dni' => $validated['dni'],
-            'numero_historia_clinica' => 'HC-' . now()->timestamp,
+            'numero_historia_clinica' => 'HC-'.now()->timestamp,
 
             'nombres' => $validated['nombres'],
             'apellidos' => $validated['apellidos'],

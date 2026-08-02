@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Especialidad;
-use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 
 class EspecialidadController extends Controller
 {
@@ -19,6 +19,7 @@ class EspecialidadController extends Controller
     public function index()
     {
         $especialidades = Especialidad::orderBy('nombre')->get();
+
         return view('especialidades.index', compact('especialidades'));
     }
 
@@ -32,7 +33,7 @@ class EspecialidadController extends Controller
         $validated = $request->validate([
             'nombre' => 'required|unique:especialidades,nombre',
             'descripcion' => 'nullable|string',
-            'estado' => 'required|boolean'
+            'estado' => 'required|boolean',
         ]);
 
         Especialidad::create($validated);
@@ -49,9 +50,9 @@ class EspecialidadController extends Controller
     public function update(Request $request, Especialidad $especialidad)
     {
         $validated = $request->validate([
-            'nombre' => 'required|unique:especialidades,nombre,' . $especialidad->id,
+            'nombre' => 'required|unique:especialidades,nombre,'.$especialidad->id,
             'descripcion' => 'nullable|string',
-            'estado' => 'required|boolean'
+            'estado' => 'required|boolean',
         ]);
 
         $especialidad->update($validated);

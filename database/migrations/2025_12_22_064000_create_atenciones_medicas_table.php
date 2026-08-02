@@ -4,8 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('atenciones_medicas', function (Blueprint $table) {
@@ -13,21 +13,21 @@ return new class extends Migration {
 
             // 🔗 Relaciones
             $table->foreignId('paciente_id')
-                  ->constrained('pacientes')
-                  ->onDelete('no action');
+                ->constrained('pacientes')
+                ->onDelete('no action');
 
             $table->foreignId('cita_id')
-                  ->nullable()
-                  ->constrained('citas')
-                  ->onDelete('set null');
+                ->nullable()
+                ->constrained('citas')
+                ->onDelete('set null');
 
             $table->foreignId('medico_id')
-                  ->constrained('medicos') // ✅ Apunta a tabla medicos
-                  ->onDelete('no action');
+                ->constrained('medicos') // ✅ Apunta a tabla medicos
+                ->onDelete('no action');
 
             $table->foreignId('registrado_por')
-                  ->constrained('users')
-                  ->onDelete('no action');
+                ->constrained('users')
+                ->onDelete('no action');
 
             // Información clínica
             $table->text('motivo_consulta');

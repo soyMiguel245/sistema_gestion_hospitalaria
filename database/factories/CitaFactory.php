@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Paciente;
-use App\Models\Medico;
 use App\Models\Especialidad;
+use App\Models\Medico;
+use App\Models\Paciente;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CitaFactory extends Factory
@@ -12,7 +12,7 @@ class CitaFactory extends Factory
     public function definition(): array
     {
         return [
-            'codigo_cita' => 'CITA-' . fake()->unique()->numerify('##########'),
+            'codigo_cita' => 'CITA-'.fake()->unique()->numerify('##########'),
             'paciente_id' => Paciente::factory(),
             'medico_id' => Medico::factory(),
             'especialidad_id' => Especialidad::factory(),
