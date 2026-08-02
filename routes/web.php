@@ -61,7 +61,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('archivos-medicos/{archivo}', [AtencionMedicaController::class, 'destroyArchivo'])
     ->name('archivos.destroy');
     // Especialidades
-    Route::resource('especialidades', EspecialidadController::class);
+    Route::resource('especialidades', EspecialidadController::class)
+    ->parameters(['especialidades' => 'especialidad']);
 
     // Reportes clínicos
     Route::prefix('reportes')->group(function () {
