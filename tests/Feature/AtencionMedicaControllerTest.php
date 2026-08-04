@@ -72,7 +72,7 @@ class AtencionMedicaControllerTest extends TestCase
     #[Test]
     public function administrador_si_puede_ver_el_listado_de_atenciones(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get('/atenciones')
@@ -112,7 +112,7 @@ class AtencionMedicaControllerTest extends TestCase
     #[Test]
     public function eliminar_una_atencion_como_administrador_funciona_correctamente(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $atencion = AtencionMedica::factory()->create();
 
         $this->actingAs($admin)

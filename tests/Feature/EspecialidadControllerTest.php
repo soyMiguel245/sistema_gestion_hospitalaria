@@ -32,7 +32,7 @@ class EspecialidadControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_el_listado_de_especialidades(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get(route('especialidades.index'))
@@ -64,7 +64,7 @@ class EspecialidadControllerTest extends TestCase
     #[Test]
     public function administrador_puede_registrar_una_especialidad(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $response = $this->actingAs($admin)
             ->post(route('especialidades.store'), $this->datosBasicos());
@@ -76,7 +76,7 @@ class EspecialidadControllerTest extends TestCase
     #[Test]
     public function no_se_puede_registrar_una_especialidad_con_nombre_repetido(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         Especialidad::factory()->create(['nombre' => 'Endocrinología']);
 
         $this->actingAs($admin)
@@ -100,7 +100,7 @@ class EspecialidadControllerTest extends TestCase
     #[Test]
     public function administrador_puede_actualizar_una_especialidad(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $especialidad = Especialidad::factory()->create(['nombre' => 'Nombre Viejo']);
 
         $datos = $this->datosBasicos();
@@ -132,7 +132,7 @@ class EspecialidadControllerTest extends TestCase
     #[Test]
     public function administrador_puede_eliminar_una_especialidad_sin_medicos_asociados(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $especialidad = Especialidad::factory()->create();
 
         $response = $this->actingAs($admin)
@@ -149,7 +149,7 @@ class EspecialidadControllerTest extends TestCase
         // lo que habría borrado médicos en cascada al eliminar la
         // especialidad. Ahora debe bloquearse con un mensaje claro,
         // sin tocar ni la especialidad ni el médico.
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $especialidad = Especialidad::factory()->create();
         Medico::factory()->create(['especialidad_id' => $especialidad->id]);
 

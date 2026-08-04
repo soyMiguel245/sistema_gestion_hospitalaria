@@ -22,7 +22,7 @@ class ReglasDeNegocioTest extends TestCase
 
     private function admin(): User
     {
-        return User::factory()->create(['role' => 'administrador']);
+        return User::factory()->activo2FA()->create(['role' => 'administrador']);
     }
 
     #[Test]

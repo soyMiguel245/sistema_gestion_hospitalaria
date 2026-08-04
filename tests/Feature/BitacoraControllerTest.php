@@ -20,7 +20,7 @@ class BitacoraControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_la_bitacora(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin =User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get('/bitacora')
@@ -59,7 +59,7 @@ class BitacoraControllerTest extends TestCase
     #[Test]
     public function el_filtro_por_modulo_solo_muestra_registros_de_ese_log_name(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         Activity::create([
             'log_name' => 'citas',
@@ -85,7 +85,7 @@ class BitacoraControllerTest extends TestCase
     #[Test]
     public function sin_filtro_de_modulo_se_muestran_todos_los_registros(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         Activity::create([
             'log_name' => 'citas',

@@ -50,4 +50,20 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * 👇 NUEVO: usuario con 2FA ya confirmado. Necesario para tests que
+     * crean un administrador y esperan que use el sistema con normalidad
+     * — desde que el 2FA es obligatorio para ese rol (EnsureAdminHas2FA),
+     * un admin sin este estado queda bloqueado y redirigido a su perfil.
+     * two_factor_confirmed_at no está en $fillable, así que no se puede
+     * pasar directo en ->create([...]) — se fija con forceFill() después
+     * de crear el registro.
+     */
+    public function activo2FA(): static
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $user->forceFill(['two_factor_confirmed_at' => now()])->save();
+        });
+    }
 }

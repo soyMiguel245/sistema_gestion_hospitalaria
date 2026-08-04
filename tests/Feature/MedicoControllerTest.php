@@ -35,7 +35,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_el_listado_de_medicos(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+  $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get(route('medicos.index'))
@@ -68,7 +68,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function administrador_puede_registrar_un_medico(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $response = $this->actingAs($admin)
             ->post(route('medicos.store'), $this->datosBasicos());
@@ -83,7 +83,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function registrar_medico_con_crear_usuario_tambien_crea_su_cuenta_de_acceso(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $datos = array_merge($this->datosBasicos(), [
             'crear_usuario' => 1,
@@ -115,7 +115,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function administrador_puede_actualizar_un_medico(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $medico = Medico::factory()->create(['nombres' => 'Nombre Viejo']);
 
         $datos = $this->datosBasicos();
@@ -147,7 +147,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function administrador_puede_eliminar_un_medico_sin_citas_ni_atenciones(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $medico = Medico::factory()->create();
 
         $response = $this->actingAs($admin)
@@ -164,7 +164,7 @@ class MedicoControllerTest extends TestCase
         // de SQL Server por la restricción de FK (onDelete no action).
         // Ahora debe capturarse y mostrar un mensaje claro, sin eliminar
         // el registro.
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
         $medico = Medico::factory()->create();
         AtencionMedica::factory()->create(['medico_id' => $medico->id]);
 

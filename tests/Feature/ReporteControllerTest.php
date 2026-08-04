@@ -33,7 +33,7 @@ class ReporteControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_el_dashboard_de_reportes(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get('/reportes/dashboard')
@@ -67,7 +67,7 @@ class ReporteControllerTest extends TestCase
         // se descargaba vacío porque no se le pasaban datos a la vista.
         // Aquí confirmamos que pacientesAtendidos llega con el conteo
         // real (3), no vacío ni en cero por defecto.
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         AtencionMedica::factory()->count(3)->create();
 
@@ -93,7 +93,7 @@ class ReporteControllerTest extends TestCase
     #[Test]
     public function exportar_pdf_incluye_los_diagnosticos_del_periodo(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $atencion = AtencionMedica::factory()->create();
         Diagnostico::factory()->create([
@@ -119,7 +119,7 @@ class ReporteControllerTest extends TestCase
     #[Test]
     public function tipo_de_reporte_invalido_en_export_devuelve_404(): void
     {
-        $admin = User::factory()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get('/reportes/export/algo_que_no_existe')

@@ -40,7 +40,7 @@
             </div>
         @endif
 
-        @yield('content')
+      @yield('content', $slot ?? '')
     </div>
 
     <!-- Bootstrap JS (imprescindible para el collapse del sidebar) -->

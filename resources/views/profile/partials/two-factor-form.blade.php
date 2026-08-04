@@ -9,6 +9,18 @@
         </p>
     </header>
 
+    @if (session('status') === 'two-factor-requerido')
+        <div class="mt-4 p-4 bg-red-50 border border-red-300 rounded">
+            <p class="font-semibold text-red-800">
+                Tu rol de Administrador requiere autenticación en dos pasos activa.
+            </p>
+            <p class="text-sm text-red-700">
+                Actívala abajo para poder seguir usando el sistema. No podrás
+                acceder a otros módulos hasta completar este paso.
+            </p>
+        </div>
+    @endif
+
     @if (session('status') === 'two-factor-confirmado' && session('codigosRecuperacion'))
         <div class="mt-4 p-4 bg-yellow-50 border border-yellow-300 rounded">
             <p class="font-semibold text-yellow-800">

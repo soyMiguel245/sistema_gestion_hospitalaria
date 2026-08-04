@@ -28,7 +28,7 @@ class RolePermissionsTest extends TestCase
     private function usuarios(): array
     {
         return [
-            'administrador' => User::factory()->create(['role' => 'administrador']),
+            'administrador' => User::factory()->activo2FA()->create(['role' => 'administrador']),
             'medico' => User::factory()->create(['role' => 'medico']),
             'recepcion' => User::factory()->create(['role' => 'recepcion']),
             'enfermera' => User::factory()->create(['role' => 'enfermera']),
