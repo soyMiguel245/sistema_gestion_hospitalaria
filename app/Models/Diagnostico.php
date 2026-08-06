@@ -19,7 +19,13 @@ class Diagnostico extends Model
         'observaciones',
     ];
 
-    // 🔗 Relaciones
+    protected $casts = [
+        // Cifrado AES-256 (Crypt/APP_KEY)
+        'descripcion' => 'encrypted',
+        'observaciones' => 'encrypted',
+    ];
+
+    // Relaciones
     public function atencionMedica()
     {
         return $this->belongsTo(AtencionMedica::class, 'atencion_medica_id');

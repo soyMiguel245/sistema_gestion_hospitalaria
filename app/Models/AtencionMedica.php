@@ -51,18 +51,38 @@ class AtencionMedica extends Model
         'peso' => 'decimal:2',
         'talla' => 'decimal:2',
         'imc' => 'decimal:2',
+        // Campos clínicos de texto libre — cifrado AES-256 (Crypt/APP_KEY)
+        'motivo_consulta' => 'encrypted',
+        'diagnostico' => 'encrypted',
+        'tratamiento' => 'encrypted',
+        'procedimientos' => 'encrypted',
+        'indicaciones' => 'encrypted',
+        'observaciones' => 'encrypted',
     ];
 
     /**
-     * 👇 NUEVO: bitácora de auditoría — esta es la tabla clínica más
-     * sensible del sistema (diagnóstico, tratamiento), así que queda
-     * registrado cada cambio con quién lo hizo y cuándo.
+     * Bitácora de auditoría — esta es la tabla clínica más sensible del
+     * sistema, así que queda registrado cada cambio con quién lo hizo y
+     * cuándo.
+     *
+     * Los campos cifrados quedan fuera del log (logExcept): si no los
+     * excluimos, Spatie registra el valor YA DESCIFRADO (post-cast) en
+     * activity_log.properties, que no está cifrada, y se pierde el
+     * propósito de cifrar la columna original.
      */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
             ->logOnlyDirty()
-            ->logExcept(['updated_at'])
+            ->logExcept([
+                'updated_at',
+                'motivo_consulta',
+                'diagnostico',
+                'tratamiento',
+                'procedimientos',
+                'indicaciones',
+                'observaciones',
+            ])
             ->useLogName('atencion_medica');
     }
 
