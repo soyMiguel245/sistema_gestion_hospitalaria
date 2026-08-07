@@ -37,6 +37,7 @@ class BackupDatabase extends Command
      * fue válido — el problema era exclusivamente de esta capa.
      */
     protected $signature = 'backup:database {--mantener=7 : Cuántos respaldos recientes conservar}';
+
     protected $description = 'Genera un respaldo completo de la base de datos, lo verifica, y elimina los respaldos antiguos';
 
     public function handle(): int
@@ -49,31 +50,34 @@ class BackupDatabase extends Command
 
         $this->info("Respaldando [{$baseDatos}] en: {$rutaCompleta}");
 
-try {
-    $pdo = DB::connection()->getPdo();
-    $stmt = $pdo->prepare("BACKUP DATABASE [{$baseDatos}] TO DISK = '{$rutaEscapada}' WITH INIT, COMPRESSION");
-    $stmt->execute();
-    while ($stmt->nextRowset()) {
-        // Drena cada result set de progreso hasta que SQL Server confirme que terminó
-    }
-} catch (\Exception $e) {
-    $this->error('Falló el respaldo: '.$e->getMessage());
-    return self::FAILURE;
-}
+        try {
+            $pdo = DB::connection()->getPdo();
+            $stmt = $pdo->prepare("BACKUP DATABASE [{$baseDatos}] TO DISK = '{$rutaEscapada}' WITH INIT, COMPRESSION");
+            $stmt->execute();
+            while ($stmt->nextRowset()) {
+                // Drena cada result set de progreso hasta que SQL Server confirme que terminó
+            }
+        } catch (\Exception $e) {
+            $this->error('Falló el respaldo: '.$e->getMessage());
 
-        $this->info('Respaldo completado correctamente.');try {
-    $pdo = DB::connection()->getPdo();
-    $stmt = $pdo->prepare("RESTORE VERIFYONLY FROM DISK = '{$rutaEscapada}'");
-    $stmt->execute();
-    while ($stmt->nextRowset()) {
-        // Drena cada result set hasta confirmar que la verificación terminó
-    }
-    $this->info('Verificación de integridad: OK.');
-} catch (\Exception $e) {
-    $this->error('El archivo se creó pero NO pasó la verificación: '.$e->getMessage());
-    $this->warn('No se rota ningún respaldo antiguo en esta corrida.');
-    return self::FAILURE;
-}
+            return self::FAILURE;
+        }
+
+        $this->info('Respaldo completado correctamente.');
+        try {
+            $pdo = DB::connection()->getPdo();
+            $stmt = $pdo->prepare("RESTORE VERIFYONLY FROM DISK = '{$rutaEscapada}'");
+            $stmt->execute();
+            while ($stmt->nextRowset()) {
+                // Drena cada result set hasta confirmar que la verificación terminó
+            }
+            $this->info('Verificación de integridad: OK.');
+        } catch (\Exception $e) {
+            $this->error('El archivo se creó pero NO pasó la verificación: '.$e->getMessage());
+            $this->warn('No se rota ningún respaldo antiguo en esta corrida.');
+
+            return self::FAILURE;
+        }
 
         $this->rotarRespaldosAntiguos($carpeta, (int) $this->option('mantener'));
 

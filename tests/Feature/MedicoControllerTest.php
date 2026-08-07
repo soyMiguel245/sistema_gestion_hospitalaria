@@ -35,7 +35,7 @@ class MedicoControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_el_listado_de_medicos(): void
     {
-  $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get(route('medicos.index'))

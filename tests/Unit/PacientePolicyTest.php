@@ -18,7 +18,7 @@ class PacientePolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new PacientePolicy();
+        $this->policy = new PacientePolicy;
     }
 
     private function usuario(string $rol): User
@@ -27,7 +27,7 @@ class PacientePolicyTest extends TestCase
     }
 
     #[Test]
-    public function viewAny_permite_a_los_cuatro_roles_clinicos(): void
+    public function view_any_permite_a_los_cuatro_roles_clinicos(): void
     {
         foreach (['administrador', 'medico', 'recepcion', 'enfermera'] as $rol) {
             $this->assertTrue(

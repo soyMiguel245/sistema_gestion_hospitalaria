@@ -166,17 +166,17 @@ class ReporteController extends Controller
      */
     public function procedimientos(Request $request)
     {
-        [$fecha_inicio, $fecha_fin] = $this->rangoFechas($request);      
+        [$fecha_inicio, $fecha_fin] = $this->rangoFechas($request);
 
-  $atenciones = AtencionMedica::with(['paciente', 'medico'])
+        $atenciones = AtencionMedica::with(['paciente', 'medico'])
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->whereNotNull('procedimientos')
             ->orderByDesc('created_at')
             ->get()
-            // 👇 CORREGIDO: 'procedimientos' está cifrado (AES-256), por lo
-            // que el filtro de "no vacío" ya no puede aplicarse en SQL —
-            // el valor crudo en la BD nunca es '', aunque el contenido
-            // descifrado sí lo sea. Se filtra en PHP, después del cast.
+                  // 👇 CORREGIDO: 'procedimientos' está cifrado (AES-256), por lo
+                  // que el filtro de "no vacío" ya no puede aplicarse en SQL —
+                  // el valor crudo en la BD nunca es '', aunque el contenido
+                  // descifrado sí lo sea. Se filtra en PHP, después del cast.
             ->filter(fn ($a) => filled($a->procedimientos))
             ->values();
 
@@ -296,14 +296,14 @@ class ReporteController extends Controller
     {
         fputcsv($file, ['Fecha', 'Paciente', 'Médico', 'Procedimientos']);
 
-                // 👇 CORREGIDO: mismo caso que en procedimientos() — el filtro de
+        // 👇 CORREGIDO: mismo caso que en procedimientos() — el filtro de
         // "no vacío" no puede aplicarse en SQL sobre una columna cifrada.
         AtencionMedica::with(['paciente', 'medico'])
             ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
             ->whereNotNull('procedimientos')
             ->get()
             ->filter(fn ($a) => filled($a->procedimientos))
-            ->each(function ($a) use ($file)  {
+            ->each(function ($a) use ($file) {
                 fputcsv($file, [
                     $a->created_at->format('d/m/Y H:i'),
                     trim(($a->paciente->nombres ?? '-').' '.($a->paciente->apellidos ?? '')),

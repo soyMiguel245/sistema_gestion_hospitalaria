@@ -20,7 +20,7 @@ class BitacoraControllerTest extends TestCase
     #[Test]
     public function administrador_puede_ver_la_bitacora(): void
     {
-        $admin =User::factory()->activo2FA()->create(['role' => 'administrador']);
+        $admin = User::factory()->activo2FA()->create(['role' => 'administrador']);
 
         $this->actingAs($admin)
             ->get('/bitacora')

@@ -18,7 +18,7 @@ class AtencionMedicaPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new AtencionMedicaPolicy();
+        $this->policy = new AtencionMedicaPolicy;
     }
 
     private function usuario(string $rol): User
@@ -27,7 +27,7 @@ class AtencionMedicaPolicyTest extends TestCase
     }
 
     #[Test]
-    public function viewAny_permite_administrador_medico_y_enfermera_pero_no_recepcion(): void
+    public function view_any_permite_administrador_medico_y_enfermera_pero_no_recepcion(): void
     {
         $this->assertTrue($this->policy->viewAny($this->usuario('administrador')));
         $this->assertTrue($this->policy->viewAny($this->usuario('medico')));
@@ -36,7 +36,7 @@ class AtencionMedicaPolicyTest extends TestCase
     }
 
     #[Test]
-    public function view_sigue_la_misma_regla_que_viewAny(): void
+    public function view_sigue_la_misma_regla_que_view_any(): void
     {
         $atencion = AtencionMedica::factory()->create();
 

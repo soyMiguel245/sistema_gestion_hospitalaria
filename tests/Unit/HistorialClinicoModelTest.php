@@ -14,7 +14,7 @@ class HistorialClinicoModelTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function historialClinico_devuelve_solo_las_atenciones_del_paciente_correcto(): void
+    public function historial_clinico_devuelve_solo_las_atenciones_del_paciente_correcto(): void
     {
         $paciente1 = Paciente::factory()->create();
         $paciente2 = Paciente::factory()->create();
@@ -30,7 +30,7 @@ class HistorialClinicoModelTest extends TestCase
     }
 
     #[Test]
-    public function historialClinico_ordena_las_atenciones_de_mas_reciente_a_mas_antigua(): void
+    public function historial_clinico_ordena_las_atenciones_de_mas_reciente_a_mas_antigua(): void
     {
         $paciente = Paciente::factory()->create();
         $medico = Medico::factory()->create();
@@ -54,7 +54,7 @@ class HistorialClinicoModelTest extends TestCase
     }
 
     #[Test]
-    public function historialClinico_viene_vacio_si_el_paciente_no_tiene_atenciones(): void
+    public function historial_clinico_viene_vacio_si_el_paciente_no_tiene_atenciones(): void
     {
         $paciente = Paciente::factory()->create();
 
@@ -64,7 +64,7 @@ class HistorialClinicoModelTest extends TestCase
     }
 
     #[Test]
-    public function historialClinico_carga_las_relaciones_diagnosticos_medico_y_cita_de_una_vez(): void
+    public function historial_clinico_carga_las_relaciones_diagnosticos_medico_y_cita_de_una_vez(): void
     {
         $paciente = Paciente::factory()->create();
         $medico = Medico::factory()->create();

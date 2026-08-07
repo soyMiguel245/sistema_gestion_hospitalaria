@@ -11,7 +11,7 @@ class ReporteControllerRangoFechasTest extends TestCase
 {
     private function llamarRangoFechas(Request $request): array
     {
-        $controller = new ReporteController();
+        $controller = new ReporteController;
 
         $reflection = new \ReflectionMethod($controller, 'rangoFechas');
         $reflection->setAccessible(true);
@@ -25,7 +25,7 @@ class ReporteControllerRangoFechasTest extends TestCase
         // 👇 CORREGIDO: el controlador aplica startOfDay()/endOfDay(),
         // así que $inicio no es "ahora menos un mes" sino la MEDIANOCHE
         // de ese día. La ventana de comparación debe reflejar eso.
-        $request = new Request();
+        $request = new Request;
 
         [$inicio, $fin] = $this->llamarRangoFechas($request);
 
