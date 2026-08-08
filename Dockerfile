@@ -1,7 +1,7 @@
 ﻿FROM php:8.2-cli
 
 RUN apt-get update && apt-get install -y \
-    curl gnupg2 apt-transport-https unixodbc-dev libzip-dev zip unzip git \
+    curl gnupg2 apt-transport-https unixodbc-dev libzip-dev libsqlite3-dev zip unzip git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc \
@@ -14,7 +14,7 @@ RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc \
 
 RUN pecl install sqlsrv-5.11.1 pdo_sqlsrv-5.11.1 \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
-    && docker-php-ext-install pdo zip
+    && docker-php-ext-install pdo pdo_sqlite zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

@@ -31,7 +31,7 @@ class MedicoDisponible implements ValidationRule
         }
 
         $inicioNueva = \Carbon\Carbon::parse($this->fechaHora);
-        $finNueva = $inicioNueva->copy()->addMinutes($this->duracionMinutos);
+        $finNueva = $inicioNueva->copy()->addMinutes((int) $this->duracionMinutos);
 
         $conflicto = Cita::where('medico_id', $this->medicoId)
             ->whereNotIn('estado', ['Cancelada', 'No asistió'])
@@ -39,7 +39,7 @@ class MedicoDisponible implements ValidationRule
             ->get()
             ->first(function (Cita $citaExistente) use ($inicioNueva, $finNueva) {
                 $inicioExistente = \Carbon\Carbon::parse($citaExistente->fecha_hora);
-                $finExistente = $inicioExistente->copy()->addMinutes($citaExistente->duracion ?? 30);
+                $finExistente = $inicioExistente->copy()->addMinutes((int) ($citaExistente->duracion ?? 30));
 
                 // Se solapan si una empieza antes de que la otra termine, en ambos sentidos.
                 return $inicioNueva->lt($finExistente) && $finNueva->gt($inicioExistente);
