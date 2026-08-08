@@ -1,0 +1,7 @@
+﻿services:
+  app:
+    environment:
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      APP_ENV: testing
